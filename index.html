@@ -97,6 +97,7 @@ canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;b
   <div class="panel">
     <h2>Логи и история изменений</h2>
     <div class="logs-toolbar">
+      <button id="exportCsvBtn">Скачать CSV</button>
       <button id="exportBtn">Скачать данные JSON</button>
       <label class="btn light" for="importFile">Загрузить JSON</label>
       <input id="importFile" type="file" accept="application/json" hidden>
@@ -243,7 +244,7 @@ function renderInput(){
         <tbody></tbody>
       </table>
       <div class="route-foot">
-        <button type="button" class="light add-row">+ Курьер</button>
+        <button type="button" class="light clear-route" data-clear-route="${route.id}">Очистить маршрут</button>
         <span class="mini">Заполнено: <span data-filled-route="${route.id}">${completed.length}</span></span>
       </div>`;
     const tbody=card.querySelector("tbody");
@@ -258,27 +259,12 @@ function renderInput(){
         <td><button type="button" class="icon-delete" title="Удалить строку" data-delete-route="${route.id}" data-delete-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
     });
-    const addBtn = card.querySelector(".add-row");
-    let lastAddClick = 0;
-    const addCourier = (event) => {
-      if(event) event.preventDefault();
-      const now = Date.now();
-      if(now - lastAddClick < 350) return;
-      lastAddClick = now;
 
-      const fresh=loadData();ensureDay(fresh,dateKey);
-      fresh[dateKey][route.id].push(emptyRow());
-      saveData(fresh);
-      addLog("Добавлена строка",`${niceDate(dateKey)}, ${route.title}, добавлен курьер №${fresh[dateKey][route.id].length}`);
-      renderInput();
-    };
-    addBtn.addEventListener("mousedown", addCourier);
-    addBtn.addEventListener("touchstart", addCourier, {passive:false});
-    addBtn.addEventListener("click", addCourier);
     grid.appendChild(card);
   });
   bindInputs();
   bindDeleteButtons();
+  bindClearRouteButtons();
 }
 function updateVisual(routeId,index){
   const data=loadData(), dateKey=todayKey(); ensureDay(data,dateKey);
@@ -300,24 +286,57 @@ function bindInputs(){
       const el=e.target;
       const raw=cleanDigits(el.value);
       el.value=raw;
-      if(raw.length>=2 && el.dataset.type==="h"){
-        const box=el.closest(".time-pair");
-        const minute=box ? box.querySelector('[data-type="m"]') : null;
-        if(minute) minute.focus();
-      }
       savePart(el,false);
+      if(raw.length>=2){
+        moveToNextTimeField(el);
+      }
     });
     input.addEventListener("blur",e=>savePart(e.target,true));
     input.addEventListener("keydown",e=>{
       if(e.key==="Enter"){
         e.preventDefault();
         savePart(e.target,true);
-        const all=Array.from(document.querySelectorAll(".time-part"));
-        const next=all[all.indexOf(e.target)+1];
-        if(next) next.focus();
+        moveToNextTimeField(e.target);
       }
     });
   });
+}
+function moveToNextTimeField(el){
+  const routeId=el.dataset.route;
+  const index=Number(el.dataset.index);
+  const key=el.dataset.key;
+  const order=["inH","inM","outH","outM"];
+  const currentPos=order.indexOf(key);
+  let nextKey, nextIndex=index;
+  if(currentPos>=0 && currentPos<order.length-1){
+    nextKey=order[currentPos+1];
+  }else{
+    nextIndex=index+1;
+    nextKey="inH";
+  }
+  const next=document.querySelector(`.time-part[data-route="${routeId}"][data-index="${nextIndex}"][data-key="${nextKey}"]`);
+  if(next){
+    next.focus();
+    next.select();
+  }
+}
+function maybeAutoAddRow(routeId,index){
+  const dateKey=todayKey();
+  const data=loadData(); ensureDay(data,dateKey);
+  const rows=data[dateKey][routeId]||[];
+  const row=rows[index];
+  if(!row) return;
+  const isLast=index===rows.length-1;
+  const full=row.inH!=="" && row.inM!=="" && row.outH!=="" && row.outM!=="";
+  if(isLast && full){
+    rows.push(emptyRow());
+    saveData(data);
+    const routeTitle=ROUTES.find(r=>r.id===routeId)?.title||routeId;
+    addLog("Автодобавление строки",`${niceDate(dateKey)}, ${routeTitle}: добавлена новая пустая строка после заполнения курьера №${index+1}`);
+    renderInput();
+    const next=document.querySelector(`.time-part[data-route="${routeId}"][data-index="${index+1}"][data-key="inH"]`);
+    if(next) next.focus();
+  }
 }
 function savePart(el,format){
   const dateKey=todayKey();
@@ -334,6 +353,9 @@ function savePart(el,format){
     const routeTitle=ROUTES.find(r=>r.id===routeId)?.title||routeId;
     const label={inH:"прибытие часы",inM:"прибытие минуты",outH:"убытие часы",outM:"убытие минуты"}[key]||key;
     addLog("Изменено время",`${niceDate(dateKey)}, ${routeTitle}, строка ${index+1}, ${label}: было ${oldValue||"пусто"}, стало ${value||"пусто"}`);
+  }
+  if(format){
+    maybeAutoAddRow(routeId,index);
   }
 }
 function bindDeleteButtons(){
@@ -354,6 +376,25 @@ function bindDeleteButtons(){
     });
   });
 }
+function bindClearRouteButtons(){
+  const dateKey=todayKey();
+  document.querySelectorAll("[data-clear-route]").forEach(btn=>{
+    btn.addEventListener("click",e=>{
+      const routeId=e.currentTarget.dataset.clearRoute;
+      const route=ROUTES.find(r=>r.id===routeId);
+      const data=loadData(); ensureDay(data,dateKey);
+      const rows=data[dateKey][routeId]||[];
+      const filledCount=rows.filter(row=>Object.values(row).some(Boolean)).length;
+      if(filledCount>0 && !confirm(`Очистить ${route.title} за сегодня? Заполненных строк: ${filledCount}`)) return;
+      data[dateKey][routeId]=[];
+      for(let i=0;i<5;i++) data[dateKey][routeId].push(emptyRow());
+      saveData(data);
+      addLog("Очищен маршрут",`${niceDate(dateKey)}, ${route.title}: очищено строк ${filledCount}`);
+      renderInput();
+    });
+  });
+}
+
 function flatRecords(routeId=null){
   const data=loadData(),rows=[];
   Object.keys(data).sort().forEach(date=>{ROUTES.forEach(route=>{
@@ -424,6 +465,38 @@ function showPage(){
 }
 document.getElementById("clearTodayBtn").addEventListener("click",()=>{if(!confirm("Очистить все данные за сегодняшний день?"))return;const data=loadData(),key=todayKey();delete data[key];saveData(data);addLog("Очищен день",niceDate(key));renderInput()});
 document.getElementById("clearLogsBtn").addEventListener("click",()=>{if(!confirm("Очистить всю историю логов?"))return;saveLogs([]);renderLogs()});
+
+function csvEscape(value){
+  const s=String(value??"");
+  return `"${s.replace(/"/g,'""')}"`;
+}
+function exportCSV(){
+  const rows=flatRecords();
+  const header=["Дата","Маршрут","Курьер №","Прибытие","Убытие","Время отгрузки, мин","KPI"];
+  const lines=[header.map(csvEscape).join(";")];
+  rows.forEach(r=>{
+    lines.push([
+      niceDate(r.date),
+      r.routeTitle,
+      r.index,
+      r.in,
+      r.out,
+      r.min,
+      kpiText(r.min)
+    ].map(csvEscape).join(";"));
+  });
+  const csv="\ufeff"+lines.join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`sklad-routes-${todayKey()}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  addLog("Экспорт CSV",`Файл sklad-routes-${todayKey()}.csv, строк: ${rows.length}`);
+  if(location.hash==="#logs")renderLogs();
+}
+document.getElementById("exportCsvBtn").addEventListener("click",exportCSV);
+
 document.getElementById("exportBtn").addEventListener("click",()=>{const payload={data:loadData(),logs:loadLogs(),exportedAt:nowStamp()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sklad-routes-${todayKey()}.json`;a.click();URL.revokeObjectURL(a.href);addLog("Экспорт данных",`Файл sklad-routes-${todayKey()}.json`);if(location.hash==="#logs")renderLogs()});
 document.getElementById("importFile").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const imported=JSON.parse(reader.result);if(imported.data)saveData(imported.data);else saveData(imported);if(imported.logs)saveLogs(imported.logs);addLog("Импорт данных",file.name);alert("Данные загружены");showPage()}catch(err){alert("Не удалось прочитать файл JSON")}};reader.readAsText(file)});
 window.addEventListener("hashchange",showPage);
