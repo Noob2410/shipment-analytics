@@ -23,22 +23,22 @@ main{max-width:1700px;margin:18px auto 40px;padding:0 14px}
 button,.btn{border:0;border-radius:12px;padding:10px 14px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;font-size:15px}
 button.light,.btn.light{background:#fff;color:var(--text);border:1px solid var(--line)}
 button.danger{background:#b42318}
-button.icon-delete{width:28px;height:28px;min-height:28px;padding:0;border-radius:999px;background:#fff;color:#b42318;border:1px solid #f0b8b2;font-size:18px;line-height:1}
+button.icon-delete{width:26px;height:26px;min-height:26px;padding:0;border-radius:999px;background:#fff;color:#b42318;border:1px solid #f0b8b2;font-size:17px;line-height:1}
 button.icon-delete:hover{background:#fff1f0}
-.routes-grid{display:grid;grid-template-columns:repeat(5,minmax(320px,1fr));gap:12px;align-items:start}
+.routes-grid{display:grid;grid-template-columns:repeat(5,minmax(335px,1fr));gap:10px;align-items:start}
 .route-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
 .route-head{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
-.route-head a{font-size:17px;font-weight:900;color:var(--text);text-decoration:none;border-bottom:2px solid transparent}
+.route-head a{font-size:16px;font-weight:900;color:var(--text);text-decoration:none;border-bottom:2px solid transparent}
 .route-head a:hover,.route-head a:focus{border-bottom-color:var(--blue)}
-.route-kpi{font-size:12px;color:var(--muted);white-space:nowrap}
+.route-kpi{font-size:11px;color:var(--muted);white-space:nowrap}
 .route-20 .route-head{background:#d9ead3}.route-21 .route-head{background:#cfe2f3}.route-927 .route-head{background:#fce5cd}.route-24-936 .route-head{background:#f4cccc}.route-11-911 .route-head{background:#ead1dc}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
-th,td{border-bottom:1px solid var(--line);padding:7px 4px;text-align:center;font-size:14px}
-th{background:#f8fafc;color:#344054;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
-.col-num{width:34px}.col-time{width:104px}.col-duration{width:66px}.col-delete{width:34px}
+th,td{border-bottom:1px solid var(--line);padding:6px 3px;text-align:center;font-size:13px}
+th{background:#f8fafc;color:#344054;font-size:11px;text-transform:uppercase;letter-spacing:.02em}
+.col-num{width:30px}.col-time{width:108px}.col-duration{width:64px}.col-delete{width:32px}
 td.num{color:var(--muted)}
 .time-pair{display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
-.time-part{width:42px;border:1px solid var(--line);border-radius:9px;padding:8px 4px;text-align:center;background:#fff;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.time-part{width:40px;border:1px solid var(--line);border-radius:9px;padding:7px 3px;text-align:center;background:#fff;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
 .time-part:focus{outline:2px solid rgba(31,78,120,.25);border-color:#1f4e78}
 .colon{font-weight:900;color:#667085}
 .duration{font-weight:900;border-radius:10px;white-space:nowrap;font-variant-numeric:tabular-nums;padding:5px 3px}
@@ -60,7 +60,7 @@ canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;b
 .log-list{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:14px}
 .log-item{display:grid;grid-template-columns:170px 140px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}
 .log-item:last-child{border-bottom:0}.log-action{font-weight:900}.log-muted{color:var(--muted)}
-@media(max-width:1600px){.routes-grid{grid-template-columns:repeat(3,minmax(320px,1fr))}}
+@media(max-width:1750px){.routes-grid{grid-template-columns:repeat(3,minmax(335px,1fr))}}
 @media(max-width:1050px){.routes-grid,.stats-grid{grid-template-columns:1fr}header{position:static}canvas{height:260px}.log-item{grid-template-columns:1fr}}
 </style>
 </head>
@@ -250,13 +250,20 @@ function renderInput(){
         <td><button type="button" class="icon-delete" title="Удалить строку" data-delete-route="${route.id}" data-delete-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
     });
-    card.querySelector(".add-row").addEventListener("click",()=>{
+    const addBtn = card.querySelector(".add-row");
+    let addLocked = false;
+    const addCourier = (event) => {
+      if(event) event.preventDefault();
+      if(addLocked) return;
+      addLocked = true;
       const fresh=loadData();ensureDay(fresh,dateKey);
       fresh[dateKey][route.id].push(emptyRow());
       saveData(fresh);
       addLog("Добавлена строка",`${niceDate(dateKey)}, ${route.title}`);
       renderInput();
-    });
+    };
+    addBtn.addEventListener("pointerdown", addCourier);
+    addBtn.addEventListener("click", addCourier);
     grid.appendChild(card);
   });
   bindInputs();
