@@ -1,68 +1,66 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Отгрузка курьеров по маршрутам</title>
-<style>
-:root{
-  --bg:#f4f6f8;--card:#fff;--text:#172033;--muted:#667085;--line:#d9dee7;
-  --blue:#1f4e78;--green:#d9ead3;--yellow:#fff2cc;--red:#f4cccc;
-  --shadow:0 10px 24px rgba(16,24,40,.08);--radius:18px;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
-header{position:sticky;top:0;z-index:20;background:#172033;color:#fff;padding:14px 18px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
-.topbar{max-width:1720px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-h1{font-size:20px;margin:0}
-.date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800}
-main{max-width:1720px;margin:18px auto 40px;padding:0 14px}
-.page{display:none}.page.active{display:block}
-.actions,.bottom-tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
-.bottom-tools{justify-content:flex-end;margin-top:26px}
-button,.btn{border:0;border-radius:12px;padding:10px 14px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;font-size:15px}
-button.light,.btn.light{background:#fff;color:var(--text);border:1px solid var(--line)}
-button.danger{background:#b42318}
-button.icon-delete{width:28px;height:28px;min-height:28px;padding:0;border-radius:999px;background:#fff;color:#b42318;border:1px solid #f0b8b2;font-size:18px;line-height:1}
-button.icon-delete:hover{background:#fff1f0}
-.routes-grid{display:grid;grid-template-columns:repeat(5,minmax(320px,1fr));gap:12px;align-items:start}
-.route-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.route-head{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
-.route-head a{font-size:17px;font-weight:900;color:var(--text);text-decoration:none;border-bottom:2px solid transparent}
-.route-head a:hover,.route-head a:focus{border-bottom-color:var(--blue)}
-.route-kpi{font-size:12px;color:var(--muted);white-space:nowrap}
-.route-20 .route-head{background:#d9ead3}.route-21 .route-head{background:#cfe2f3}.route-927 .route-head{background:#fce5cd}.route-24-936 .route-head{background:#f4cccc}.route-11-911 .route-head{background:#ead1dc}
-table{width:100%;border-collapse:collapse;table-layout:fixed}
-th,td{border-bottom:1px solid var(--line);padding:7px 4px;text-align:center;font-size:14px}
-th{background:#f8fafc;color:#344054;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
-.col-num{width:34px}.col-time{width:94px}.col-duration{width:70px}.col-delete{width:34px}
-td.num{color:var(--muted)}
-.time-field{
-  width:86px;border:1px solid var(--line);border-radius:10px;padding:8px 6px;text-align:center;background:#fff;
-  font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;
-}
-.time-field:focus{outline:2px solid rgba(31,78,120,.25);border-color:#1f4e78}
-.duration{font-weight:900;border-radius:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
-.good{background:var(--green)}.warn{background:var(--yellow)}.bad{background:var(--red)}.empty{color:#98a2b3}
-.route-foot{padding:10px 12px;display:flex;gap:8px;justify-content:space-between;align-items:center;background:#fbfcfe}
-.mini{color:var(--muted);font-size:13px}
-.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;margin:14px 0}
-.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-.stat{padding:16px}.panel{padding:16px;margin:12px 0}
-.stat .label{color:var(--muted);font-size:13px;margin-bottom:8px}.stat .value{font-size:28px;font-weight:900}
-.panel h2,.panel h3{margin:0 0 12px}
-canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;background:#fff}
-.kpi-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
-.badge{border-radius:999px;padding:7px 10px;font-size:13px;font-weight:800;border:1px solid var(--line)}
-.badge.good{background:var(--green)}.badge.warn{background:var(--yellow)}.badge.bad{background:var(--red)}
-.data-table th,.data-table td{text-align:left}.data-table td:last-child,.data-table th:last-child{text-align:center}
-.logs-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.log-list{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:14px}
-.log-item{display:grid;grid-template-columns:170px 140px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}
-.log-item:last-child{border-bottom:0}.log-action{font-weight:900}.log-muted{color:var(--muted)}
-@media(max-width:1600px){.routes-grid{grid-template-columns:repeat(3,minmax(320px,1fr))}}
-@media(max-width:1050px){.routes-grid,.stats-grid{grid-template-columns:1fr}header{position:static}canvas{height:260px}.log-item{grid-template-columns:1fr}}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Отгрузка курьеров по маршрутам</title>
+  <meta name="theme-color" content="#172033" />
+  <style>
+    :root{
+      --bg:#f4f6f8; --card:#fff; --text:#172033; --muted:#667085; --line:#d9dee7;
+      --blue:#1f4e78; --green:#d9ead3; --yellow:#fff2cc; --red:#f4cccc;
+      --shadow:0 10px 24px rgba(16,24,40,.08); --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;z-index:20;background:#172033;color:white;padding:14px 18px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
+    .topbar{max-width:1600px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    h1{font-size:20px;margin:0}
+    .date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800;white-space:nowrap}
+    main{max-width:1600px;margin:18px auto 40px;padding:0 14px}
+    .page{display:none}.page.active{display:block}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+    button,.btn{border:0;border-radius:12px;padding:10px 14px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;font-size:15px}
+    button.light,.btn.light{background:#fff;color:var(--text);border:1px solid var(--line)}
+    button.danger{background:#b42318}
+    button.icon-delete{width:28px;height:28px;min-height:28px;padding:0;border-radius:999px;background:#fff;color:#b42318;border:1px solid #f0b8b2;font-size:18px;line-height:1}
+    button.icon-delete:hover{background:#fff1f0}
+    .routes-grid{display:grid;grid-template-columns:repeat(5,minmax(300px,1fr));gap:12px;align-items:start}
+    .route-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+    .route-head{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .route-head a{font-size:17px;font-weight:900;color:var(--text);text-decoration:none;border-bottom:2px solid transparent}
+    .route-head a:hover{border-bottom-color:var(--blue)}
+    .route-kpi{font-size:12px;color:var(--muted);white-space:nowrap}
+    .route-20 .route-head{background:#d9ead3}.route-21 .route-head{background:#cfe2f3}.route-927 .route-head{background:#fce5cd}.route-24-936 .route-head{background:#f4cccc}.route-11-911 .route-head{background:#ead1dc}
+    table{width:100%;border-collapse:collapse;table-layout:fixed}
+    th,td{border-bottom:1px solid var(--line);padding:7px 5px;text-align:center;font-size:14px}
+    th{background:#f8fafc;color:#344054;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+    .col-num{width:34px}.col-time{width:86px}.col-duration{width:66px}.col-delete{width:34px}
+    td.num{color:var(--muted)}
+    input[type="time"]{width:100%;min-width:78px;border:1px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;background:#fff;font-size:14px;font-weight:750}
+    input[type="time"]:focus{outline:2px solid rgba(31,78,120,.25);border-color:#1f4e78}
+    .duration{font-weight:900;border-radius:10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .good{background:var(--green)}.warn{background:var(--yellow)}.bad{background:var(--red)}.empty{color:#98a2b3}
+    .route-foot{padding:10px 12px;display:flex;gap:8px;justify-content:space-between;align-items:center;background:#fbfcfe}
+    .mini{color:var(--muted);font-size:13px}
+    .bottom-tools{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;margin:14px 0}
+    .stat,.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .stat{padding:16px}.panel{padding:16px;margin:12px 0}
+    .stat .label{color:var(--muted);font-size:13px;margin-bottom:8px}.stat .value{font-size:28px;font-weight:900}
+    .panel h2,.panel h3{margin:0 0 12px}
+    canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;background:#fff}
+    .kpi-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
+    .badge{border-radius:999px;padding:7px 10px;font-size:13px;font-weight:800;border:1px solid var(--line)}
+    .badge.good{background:var(--green)}.badge.warn{background:var(--yellow)}.badge.bad{background:var(--red)}
+    .data-table th,.data-table td{text-align:left}.data-table td:last-child,.data-table th:last-child{text-align:center}
+    .logs-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .log-list{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:14px}
+    .log-item{display:grid;grid-template-columns:170px 140px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}
+    .log-item:last-child{border-bottom:0}.log-action{font-weight:900}.log-muted{color:var(--muted)}
+    @media(max-width:1500px){.routes-grid{grid-template-columns:repeat(3,minmax(300px,1fr))}}
+    @media(max-width:980px){.routes-grid,.stats-grid{grid-template-columns:1fr}header{position:static}canvas{height:260px}.log-item{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
 <header>
@@ -73,38 +71,44 @@ canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;b
 </header>
 
 <main>
-<section id="inputPage" class="page active">
-  <div class="actions">
-    <a class="btn" href="#overall">Общая статистика</a>
-    <button class="danger" id="clearTodayBtn">Очистить сегодняшний день</button>
-  </div>
-  <div class="routes-grid" id="routesGrid"></div>
-  <div class="bottom-tools"><a class="btn light" href="#logs">Просмотр логов</a></div>
-</section>
-
-<section id="routePage" class="page">
-  <div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn" href="#overall">Общая статистика</a></div>
-  <div id="routeAnalytics"></div>
-</section>
-
-<section id="overallPage" class="page">
-  <div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn light" href="#logs">Просмотр логов</a></div>
-  <div id="overallAnalytics"></div>
-</section>
-
-<section id="logsPage" class="page">
-  <div class="actions"><a class="btn light" href="#">← Назад к вводу</a></div>
-  <div class="panel">
-    <h2>Логи и история изменений</h2>
-    <div class="logs-toolbar">
-      <button id="exportBtn">Скачать данные JSON</button>
-      <label class="btn light" for="importFile">Загрузить JSON</label>
-      <input id="importFile" type="file" accept="application/json" hidden>
-      <button class="danger" id="clearLogsBtn">Очистить логи</button>
+  <section id="inputPage" class="page active">
+    <div class="actions">
+      <a class="btn" href="#overall">Общая статистика</a>
+      <button class="danger" id="clearTodayBtn">Очистить сегодняшний день</button>
     </div>
-    <div class="log-list" id="logList"></div>
-  </div>
-</section>
+    <div class="routes-grid" id="routesGrid"></div>
+    <div class="bottom-tools"><a class="btn light" href="#logs">Просмотр логов</a></div>
+  </section>
+
+  <section id="routePage" class="page">
+    <div class="actions">
+      <a class="btn light" href="#">← Назад к вводу</a>
+      <a class="btn" href="#overall">Общая статистика</a>
+    </div>
+    <div id="routeAnalytics"></div>
+  </section>
+
+  <section id="overallPage" class="page">
+    <div class="actions">
+      <a class="btn light" href="#">← Назад к вводу</a>
+      <a class="btn light" href="#logs">Просмотр логов</a>
+    </div>
+    <div id="overallAnalytics"></div>
+  </section>
+
+  <section id="logsPage" class="page">
+    <div class="actions"><a class="btn light" href="#">← Назад к вводу</a></div>
+    <div class="panel">
+      <h2>Логи и история изменений</h2>
+      <div class="logs-toolbar">
+        <button id="exportBtn">Скачать данные JSON</button>
+        <label class="btn light" for="importFile">Загрузить JSON</label>
+        <input id="importFile" type="file" accept="application/json" hidden>
+        <button class="danger" id="clearLogsBtn">Очистить логи</button>
+      </div>
+      <div class="log-list" id="logList"></div>
+    </div>
+  </section>
 </main>
 
 <script>
@@ -115,8 +119,8 @@ const ROUTES=[
   {id:"24/936",title:"Маршрут 24/936",cls:"route-24-936"},
   {id:"11/911",title:"Маршрут 11/911",cls:"route-11-911"}
 ];
-const STORAGE_KEY="skladCourierRouteData_v4";
-const LOG_KEY="skladCourierRouteLogs_v4";
+const STORAGE_KEY="skladCourierRouteData_stable_v1";
+const LOG_KEY="skladCourierRouteLogs_stable_v1";
 
 function pad(n){return String(n).padStart(2,"0")}
 function todayKey(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
@@ -128,150 +132,41 @@ function loadLogs(){try{return JSON.parse(localStorage.getItem(LOG_KEY))||[]}cat
 function saveLogs(logs){localStorage.setItem(LOG_KEY,JSON.stringify(logs.slice(0,1000)))}
 function addLog(action,details){const logs=loadLogs();logs.unshift({time:nowStamp(),action,details});saveLogs(logs)}
 function ensureDay(data,dateKey){data[dateKey] ||= {}; ROUTES.forEach(r=>data[dateKey][r.id] ||= [])}
-
-function normalizeTime(value){
-  let v=String(value||"").trim().replace(/[^\d:]/g,"");
-  if(v==="") return "";
-  let h,m;
-  if(v.includes(":")){
-    const parts=v.split(":");
-    h=parts[0]||"";
-    m=parts[1]||"";
-  }else{
-    if(v.length<=2){h=v;m="00"}
-    else if(v.length===3){h=v.slice(0,1);m=v.slice(1)}
-    else{h=v.slice(0,2);m=v.slice(2,4)}
-  }
-  if(h==="") return "";
-  if(m==="") m="00";
-  let hh=Number(h), mm=Number(m);
-  if(!Number.isFinite(hh)||!Number.isFinite(mm)) return "";
-  if(hh<0) hh=0; if(hh>23) hh=23;
-  if(mm<0) mm=0; if(mm>59) mm=59;
-  return `${pad(hh)}:${pad(mm)}`;
-}
 function minutesBetween(start,end){
-  if(!start||!end) return null;
-  const [sh,sm]=start.split(":").map(Number), [eh,em]=end.split(":").map(Number);
-  if([sh,sm,eh,em].some(Number.isNaN)) return null;
-  let a=sh*60+sm, b=eh*60+em;
-  if(b<a) b+=1440;
-  return b-a;
+  if(!start||!end)return null;
+  const [sh,sm]=start.split(":").map(Number),[eh,em]=end.split(":").map(Number);
+  if([sh,sm,eh,em].some(Number.isNaN))return null;
+  let a=sh*60+sm,b=eh*60+em;if(b<a)b+=1440;return b-a;
 }
-function fmtMin(min){
-  if(min===null||min===undefined||Number.isNaN(min)) return "—";
-  const h=Math.floor(min/60), m=Math.round(min%60);
-  return h>0?`${h}:${pad(m)}`:`${m} мин`;
-}
-function kpiClass(min){if(min===null||min===undefined)return"empty"; if(min<=40)return"good"; if(min<=60)return"warn"; return"bad"}
-function kpiText(min){if(min===null||min===undefined)return"—"; if(min<=40)return"≤40"; if(min<=60)return"40–60"; return">60"}
-
-function updateRouteHeader(routeId){
-  const dateKey=todayKey();
-  const data=loadData(); ensureDay(data,dateKey);
-  const rows=data[dateKey][routeId]||[];
-  const completed=rows.map(x=>minutesBetween(x.in,x.out)).filter(x=>x!==null);
-  const avg=completed.length?completed.reduce((s,x)=>s+x,0)/completed.length:null;
-  const card=document.querySelector(`[data-card-route="${CSS.escape(routeId)}"]`);
-  if(card){
-    card.querySelector(".route-kpi").textContent=`Среднее: ${fmtMin(avg)}`;
-    card.querySelector(".filled-count").textContent=completed.length;
-  }
-}
-function updateRowVisual(routeId,index){
-  const dateKey=todayKey();
-  const data=loadData(); ensureDay(data,dateKey);
-  const row=data[dateKey][routeId][index]||{in:"",out:""};
-  const min=minutesBetween(row.in,row.out);
-  const dur=document.querySelector(`[data-duration-route="${CSS.escape(routeId)}"][data-duration-index="${index}"]`);
-  if(dur){
-    dur.textContent=fmtMin(min);
-    dur.className=`duration ${kpiClass(min)}`;
-  }
-  updateRouteHeader(routeId);
-}
-function saveTimeInput(input){
-  const dateKey=todayKey();
-  const data=loadData(); ensureDay(data,dateKey);
-  const routeId=input.dataset.route;
-  const index=Number(input.dataset.index);
-  const field=input.dataset.field;
-  const normalized=normalizeTime(input.value);
-  const oldValue=data[dateKey][routeId][index][field]||"";
-  input.value=normalized;
-  data[dateKey][routeId][index][field]=normalized;
-  saveData(data);
-  updateRowVisual(routeId,index);
-  if(oldValue!==normalized){
-    const routeTitle=ROUTES.find(r=>r.id===routeId)?.title||routeId;
-    addLog("Изменено время",`${niceDate(dateKey)}, ${routeTitle}, строка ${index+1}, ${field==="in"?"прибытие":"убытие"}: ${oldValue||"пусто"} → ${normalized||"пусто"}`);
-  }
-}
-function bindTimeInputs(){
-  document.querySelectorAll(".time-field").forEach(input=>{
-    input.addEventListener("input",e=>{
-      e.target.value=String(e.target.value).replace(/[^\d:]/g,"").slice(0,5);
-    });
-    input.addEventListener("blur",e=>saveTimeInput(e.target));
-    input.addEventListener("keydown",e=>{
-      if(e.key==="Enter"){
-        e.preventDefault();
-        saveTimeInput(e.target);
-        const all=Array.from(document.querySelectorAll(".time-field"));
-        const next=all[all.indexOf(e.target)+1];
-        if(next) next.focus();
-      }
-    });
-  });
-}
-function bindDeleteButtons(){
-  const dateKey=todayKey();
-  document.querySelectorAll("[data-delete-route]").forEach(btn=>{
-    btn.addEventListener("click",e=>{
-      const routeId=e.currentTarget.dataset.deleteRoute;
-      const index=Number(e.currentTarget.dataset.deleteIndex);
-      const route=ROUTES.find(r=>r.id===routeId);
-      const data=loadData(); ensureDay(data,dateKey);
-      const row=data[dateKey][routeId][index]||{in:"",out:""};
-      if((row.in||row.out)&&!confirm(`Удалить строку №${index+1} в ${route.title}?`)) return;
-      data[dateKey][routeId].splice(index,1);
-      if(data[dateKey][routeId].length<5) data[dateKey][routeId].push({in:"",out:""});
-      saveData(data);
-      addLog("Удалена строка",`${niceDate(dateKey)}, ${route.title}, строка ${index+1}, было: ${JSON.stringify(row)}`);
-      renderInput();
-    });
-  });
-}
+function fmtMin(min){if(min===null||min===undefined||Number.isNaN(min))return"—";const h=Math.floor(min/60),m=Math.round(min%60);return h>0?`${h}:${pad(m)}`:`${m} мин`}
+function kpiClass(min){if(min===null||min===undefined)return"empty";if(min<=40)return"good";if(min<=60)return"warn";return"bad"}
+function kpiText(min){if(min===null||min===undefined)return"—";if(min<=40)return"≤40";if(min<=60)return"40–60";return">60"}
 
 function renderInput(){
   const dateKey=todayKey();
   document.getElementById("todayLabel").textContent=`Сегодня: ${niceDate(dateKey)}`;
-  const data=loadData(); ensureDay(data,dateKey); saveData(data);
-  const grid=document.getElementById("routesGrid");
-  grid.innerHTML="";
+  const data=loadData();ensureDay(data,dateKey);saveData(data);
+  const grid=document.getElementById("routesGrid");grid.innerHTML="";
   ROUTES.forEach(route=>{
     const rows=data[dateKey][route.id];
-    while(rows.length<5) rows.push({in:"",out:""});
+    while(rows.length<5)rows.push({in:"",out:""});
     const completed=rows.map(x=>minutesBetween(x.in,x.out)).filter(x=>x!==null);
     const avg=completed.length?completed.reduce((s,x)=>s+x,0)/completed.length:null;
     const card=document.createElement("article");
     card.className=`route-card ${route.cls}`;
-    card.dataset.cardRoute=route.id;
     card.innerHTML=`
       <div class="route-head">
         <a href="#route/${encodeURIComponent(route.id)}">${route.title}</a>
         <div class="route-kpi">Среднее: ${fmtMin(avg)}</div>
       </div>
       <table>
-        <colgroup>
-          <col class="col-num"><col class="col-time"><col class="col-time"><col class="col-duration"><col class="col-delete">
-        </colgroup>
+        <colgroup><col class="col-num"><col class="col-time"><col class="col-time"><col class="col-duration"><col class="col-delete"></colgroup>
         <thead><tr><th>№</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
       <div class="route-foot">
         <button type="button" class="light add-row">+ Курьер</button>
-        <span class="mini">Заполнено: <span class="filled-count">${completed.length}</span></span>
+        <span class="mini">Заполнено: ${completed.length}</span>
       </div>`;
     const tbody=card.querySelector("tbody");
     rows.forEach((row,i)=>{
@@ -279,14 +174,14 @@ function renderInput(){
       const tr=document.createElement("tr");
       tr.innerHTML=`
         <td class="num">${i+1}</td>
-        <td><input class="time-field" inputmode="numeric" autocomplete="off" placeholder="00:00" value="${row.in||""}" data-route="${route.id}" data-index="${i}" data-field="in"></td>
-        <td><input class="time-field" inputmode="numeric" autocomplete="off" placeholder="00:00" value="${row.out||""}" data-route="${route.id}" data-index="${i}" data-field="out"></td>
-        <td><span data-duration-route="${route.id}" data-duration-index="${i}" class="duration ${kpiClass(min)}">${fmtMin(min)}</span></td>
+        <td><input type="time" value="${row.in||""}" data-route="${route.id}" data-index="${i}" data-field="in"></td>
+        <td><input type="time" value="${row.out||""}" data-route="${route.id}" data-index="${i}" data-field="out"></td>
+        <td class="duration ${kpiClass(min)}">${fmtMin(min)}</td>
         <td><button type="button" class="icon-delete" title="Удалить строку" data-delete-route="${route.id}" data-delete-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
     });
     card.querySelector(".add-row").addEventListener("click",()=>{
-      const fresh=loadData(); ensureDay(fresh,dateKey);
+      const fresh=loadData();ensureDay(fresh,dateKey);
       fresh[dateKey][route.id].push({in:"",out:""});
       saveData(fresh);
       addLog("Добавлена строка",`${niceDate(dateKey)}, ${route.title}`);
@@ -294,21 +189,60 @@ function renderInput(){
     });
     grid.appendChild(card);
   });
-  bindTimeInputs();
+  bindInputs();
   bindDeleteButtons();
 }
-
-function flatRecords(routeId=null){
-  const data=loadData(), rows=[];
-  Object.keys(data).sort().forEach(date=>{
-    ROUTES.forEach(route=>{
-      if(routeId&&route.id!==routeId)return;
-      (data[date][route.id]||[]).forEach((item,index)=>{
-        const min=minutesBetween(item.in,item.out);
-        if(min!==null) rows.push({date,routeId:route.id,routeTitle:route.title,index:index+1,in:item.in,out:item.out,min});
-      });
+function bindInputs(){
+  document.querySelectorAll('input[type="time"]').forEach(input=>{
+    input.addEventListener("change",saveTime);
+    input.addEventListener("blur",saveTime);
+    input.addEventListener("keydown",e=>{
+      if(e.key==="Enter"){
+        e.preventDefault();
+        saveTime(e);
+        const all=Array.from(document.querySelectorAll('input[type="time"]'));
+        const next=all[all.indexOf(e.target)+1];
+        if(next)next.focus();
+      }
     });
   });
+}
+function saveTime(e){
+  const input=e.target,dateKey=todayKey();
+  const data=loadData();ensureDay(data,dateKey);
+  const route=input.dataset.route,index=Number(input.dataset.index),field=input.dataset.field;
+  const oldValue=data[dateKey][route][index][field]||"";
+  const newValue=input.value||"";
+  if(oldValue===newValue)return;
+  data[dateKey][route][index][field]=newValue;
+  saveData(data);
+  const routeTitle=ROUTES.find(r=>r.id===route)?.title||route;
+  addLog("Изменено время",`${niceDate(dateKey)}, ${routeTitle}, строка ${index+1}, ${field==="in"?"прибытие":"убытие"}: ${oldValue||"пусто"} → ${newValue||"пусто"}`);
+  renderInput();
+}
+function bindDeleteButtons(){
+  const dateKey=todayKey();
+  document.querySelectorAll("[data-delete-route]").forEach(btn=>{
+    btn.addEventListener("click",e=>{
+      const routeId=e.currentTarget.dataset.deleteRoute,index=Number(e.currentTarget.dataset.deleteIndex);
+      const route=ROUTES.find(r=>r.id===routeId);
+      const data=loadData();ensureDay(data,dateKey);
+      const row=data[dateKey][routeId][index]||{in:"",out:""};
+      if((row.in||row.out)&&!confirm(`Удалить строку №${index+1} в ${route.title}?`))return;
+      data[dateKey][routeId].splice(index,1);
+      if(data[dateKey][routeId].length<5)data[dateKey][routeId].push({in:"",out:""});
+      saveData(data);
+      addLog("Удалена строка",`${niceDate(dateKey)}, ${route.title}, строка ${index+1}, было: ${JSON.stringify(row)}`);
+      renderInput();
+    });
+  });
+}
+function flatRecords(routeId=null){
+  const data=loadData(),rows=[];
+  Object.keys(data).sort().forEach(date=>{ROUTES.forEach(route=>{
+    if(routeId&&route.id!==routeId)return;
+    (data[date][route.id]||[]).forEach((item,index)=>{const min=minutesBetween(item.in,item.out);if(min!==null)rows.push({date,routeId:route.id,routeTitle:route.title,index:index+1,in:item.in,out:item.out,min})});
+  })});
   return rows;
 }
 function calcStats(rows){
@@ -317,98 +251,62 @@ function calcStats(rows){
   const min=count?Math.min(...rows.map(r=>r.min)):null,max=count?Math.max(...rows.map(r=>r.min)):null,sla=count?Math.round(((green+yellow)/count)*100):0;
   return{count,total,avg,green,yellow,red,min,max,sla};
 }
-function dailyAverage(rows){
-  const map={}; rows.forEach(r=>{map[r.date] ||= []; map[r.date].push(r.min)});
-  return Object.keys(map).sort().map(date=>({date,avg:map[date].reduce((s,x)=>s+x,0)/map[date].length}));
-}
+function dailyAverage(rows){const map={};rows.forEach(r=>{map[r.date]||=[];map[r.date].push(r.min)});return Object.keys(map).sort().map(date=>({date,avg:map[date].reduce((s,x)=>s+x,0)/map[date].length}))}
 function statsCards(stats){
   return `<div class="stats-grid">
     <div class="stat"><div class="label">Курьеров</div><div class="value">${stats.count}</div></div>
     <div class="stat"><div class="label">Среднее время</div><div class="value">${fmtMin(stats.avg)}</div></div>
     <div class="stat"><div class="label">Общее время</div><div class="value">${fmtMin(stats.total)}</div></div>
     <div class="stat"><div class="label">KPI ≤60 мин</div><div class="value">${stats.sla}%</div></div>
-  </div>
-  <div class="kpi-row">
-    <span class="badge good">≤40 мин: ${stats.green}</span>
-    <span class="badge warn">41–60 мин: ${stats.yellow}</span>
-    <span class="badge bad">>60 мин: ${stats.red}</span>
-    <span class="badge">Мин: ${fmtMin(stats.min)}</span>
-    <span class="badge">Макс: ${fmtMin(stats.max)}</span>
+  </div><div class="kpi-row">
+    <span class="badge good">≤40 мин: ${stats.green}</span><span class="badge warn">41–60 мин: ${stats.yellow}</span><span class="badge bad">>60 мин: ${stats.red}</span>
+    <span class="badge">Мин: ${fmtMin(stats.min)}</span><span class="badge">Макс: ${fmtMin(stats.max)}</span>
   </div>`;
 }
 function drawLineChart(canvas,points,title){
-  const ctx=canvas.getContext("2d"), ratio=window.devicePixelRatio||1;
-  canvas.width=canvas.clientWidth*ratio; canvas.height=canvas.clientHeight*ratio; ctx.scale(ratio,ratio);
-  const W=canvas.clientWidth,H=canvas.clientHeight; ctx.clearRect(0,0,W,H);
-  ctx.font="14px system-ui"; ctx.fillStyle="#172033"; ctx.fillText(title,18,26);
+  const ctx=canvas.getContext("2d"),ratio=window.devicePixelRatio||1;
+  canvas.width=canvas.clientWidth*ratio;canvas.height=canvas.clientHeight*ratio;ctx.scale(ratio,ratio);
+  const W=canvas.clientWidth,H=canvas.clientHeight;ctx.clearRect(0,0,W,H);ctx.font="14px system-ui";ctx.fillStyle="#172033";ctx.fillText(title,18,26);
   const padL=54,padR=18,padT=44,padB=42,plotW=W-padL-padR,plotH=H-padT-padB;
-  ctx.strokeStyle="#d9dee7"; ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){const y=padT+(plotH/4)*i;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke()}
+  ctx.strokeStyle="#d9dee7";ctx.lineWidth=1;for(let i=0;i<=4;i++){const y=padT+(plotH/4)*i;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke()}
   if(points.length===0){ctx.fillStyle="#98a2b3";ctx.font="22px system-ui";ctx.fillText("Нет данных для графика",padL,padT+80);return}
   const maxY=Math.max(70,Math.ceil(Math.max(...points.map(p=>p.avg))/10)*10);
-  ctx.fillStyle="#667085";ctx.font="12px system-ui";
-  for(let i=0;i<=4;i++){const val=Math.round(maxY-(maxY/4)*i),y=padT+(plotH/4)*i;ctx.fillText(`${val}`,14,y+4)}
-  const xFor=i=>points.length===1?padL+plotW/2:padL+(plotW/(points.length-1))*i;
-  const yFor=v=>padT+plotH-(v/maxY)*plotH;
-  ctx.strokeStyle="#1f4e78";ctx.lineWidth=3;ctx.beginPath();
-  points.forEach((p,i)=>{const x=xFor(i),y=yFor(p.avg);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke();
+  ctx.fillStyle="#667085";ctx.font="12px system-ui";for(let i=0;i<=4;i++){const val=Math.round(maxY-(maxY/4)*i),y=padT+(plotH/4)*i;ctx.fillText(`${val}`,14,y+4)}
+  const xFor=i=>points.length===1?padL+plotW/2:padL+(plotW/(points.length-1))*i,yFor=v=>padT+plotH-(v/maxY)*plotH;
+  ctx.strokeStyle="#1f4e78";ctx.lineWidth=3;ctx.beginPath();points.forEach((p,i)=>{const x=xFor(i),y=yFor(p.avg);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke();
   ctx.fillStyle="#1f4e78";points.forEach((p,i)=>{const x=xFor(i),y=yFor(p.avg);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()});
 }
 function renderRouteAnalytics(routeId){
-  const route=ROUTES.find(r=>r.id===routeId), container=document.getElementById("routeAnalytics");
+  const route=ROUTES.find(r=>r.id===routeId),container=document.getElementById("routeAnalytics");
   if(!route){container.innerHTML=`<div class="panel"><h2>Маршрут не найден</h2></div>`;return}
   const rows=flatRecords(routeId),stats=calcStats(rows),daily=dailyAverage(rows);
-  container.innerHTML=`<div class="panel"><h2>${route.title}: аналитика</h2>${statsCards(stats)}</div>
-  <div class="panel"><canvas id="routeChart"></canvas></div>
-  <div class="panel"><h3>Детальные данные</h3><table class="data-table">
-  <thead><tr><th>Дата</th><th>Курьер №</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th>KPI</th></tr></thead>
+  container.innerHTML=`<div class="panel"><h2>${route.title}: аналитика</h2>${statsCards(stats)}</div><div class="panel"><canvas id="routeChart"></canvas></div>
+  <div class="panel"><h3>Детальные данные</h3><table class="data-table"><thead><tr><th>Дата</th><th>Курьер №</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th>KPI</th></tr></thead>
   <tbody>${rows.slice().reverse().map(r=>`<tr><td>${niceDate(r.date)}</td><td>${r.index}</td><td>${r.in}</td><td>${r.out}</td><td>${fmtMin(r.min)}</td><td><span class="badge ${kpiClass(r.min)}">${kpiText(r.min)}</span></td></tr>`).join("")||`<tr><td colspan="6">Данных пока нет</td></tr>`}</tbody></table></div>`;
   drawLineChart(document.getElementById("routeChart"),daily,`Среднее время по дням — ${route.title}`);
 }
 function renderOverall(){
   const rows=flatRecords(),stats=calcStats(rows),daily=dailyAverage(rows);
   const byRoute=ROUTES.map(route=>({route,stats:calcStats(rows.filter(r=>r.routeId===route.id))}));
-  document.getElementById("overallAnalytics").innerHTML=`<div class="panel"><h2>Общая статистика по всем маршрутам</h2>${statsCards(stats)}</div>
-  <div class="panel"><canvas id="overallChart"></canvas></div>
-  <div class="panel"><h3>Сводка по маршрутам</h3><table class="data-table">
-  <thead><tr><th>Маршрут</th><th>Курьеров</th><th>Среднее</th><th>Общее время</th><th>≤40</th><th>41–60</th><th>>60</th><th>KPI ≤60</th></tr></thead>
+  document.getElementById("overallAnalytics").innerHTML=`<div class="panel"><h2>Общая статистика по всем маршрутам</h2>${statsCards(stats)}</div><div class="panel"><canvas id="overallChart"></canvas></div>
+  <div class="panel"><h3>Сводка по маршрутам</h3><table class="data-table"><thead><tr><th>Маршрут</th><th>Курьеров</th><th>Среднее</th><th>Общее время</th><th>≤40</th><th>41–60</th><th>>60</th><th>KPI ≤60</th></tr></thead>
   <tbody>${byRoute.map(x=>`<tr><td><a href="#route/${encodeURIComponent(x.route.id)}">${x.route.title}</a></td><td>${x.stats.count}</td><td>${fmtMin(x.stats.avg)}</td><td>${fmtMin(x.stats.total)}</td><td>${x.stats.green}</td><td>${x.stats.yellow}</td><td>${x.stats.red}</td><td>${x.stats.sla}%</td></tr>`).join("")}</tbody></table></div>`;
   drawLineChart(document.getElementById("overallChart"),daily,"Общее среднее время всех курьеров по дням");
 }
-function renderLogs(){
-  const logs=loadLogs();
-  document.getElementById("logList").innerHTML=logs.map(l=>`<div class="log-item"><div class="log-muted">${l.time}</div><div class="log-action">${l.action}</div><div>${l.details}</div></div>`).join("")||`<div class="log-item"><div class="log-muted">Логов пока нет</div><div></div><div></div></div>`;
-}
+function renderLogs(){const logs=loadLogs();document.getElementById("logList").innerHTML=logs.map(l=>`<div class="log-item"><div class="log-muted">${l.time}</div><div class="log-action">${l.action}</div><div>${l.details}</div></div>`).join("")||`<div class="log-item"><div class="log-muted">Логов пока нет</div><div></div><div></div></div>`}
 function showPage(){
-  const hash=location.hash.replace(/^#/,"");
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  const hash=location.hash.replace(/^#/,"");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   if(hash.startsWith("route/")){document.getElementById("routePage").classList.add("active");renderRouteAnalytics(decodeURIComponent(hash.split("/")[1]))}
   else if(hash==="overall"){document.getElementById("overallPage").classList.add("active");renderOverall()}
   else if(hash==="logs"){document.getElementById("logsPage").classList.add("active");renderLogs()}
   else{document.getElementById("inputPage").classList.add("active");renderInput()}
 }
-document.getElementById("clearTodayBtn").addEventListener("click",()=>{
-  if(!confirm("Очистить все данные за сегодняшний день?"))return;
-  const data=loadData(),key=todayKey(); delete data[key]; saveData(data); addLog("Очищен день",niceDate(key)); renderInput();
-});
-document.getElementById("clearLogsBtn").addEventListener("click",()=>{if(!confirm("Очистить всю историю логов?"))return; saveLogs([]); renderLogs()});
-document.getElementById("exportBtn").addEventListener("click",()=>{
-  const payload={data:loadData(),logs:loadLogs(),exportedAt:nowStamp()};
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}), a=document.createElement("a");
-  a.href=URL.createObjectURL(blob); a.download=`sklad-routes-${todayKey()}.json`; a.click(); URL.revokeObjectURL(a.href);
-  addLog("Экспорт данных",`Файл sklad-routes-${todayKey()}.json`); if(location.hash==="#logs")renderLogs();
-});
-document.getElementById("importFile").addEventListener("change",e=>{
-  const file=e.target.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=()=>{
-    try{const imported=JSON.parse(reader.result); if(imported.data)saveData(imported.data);else saveData(imported); if(imported.logs)saveLogs(imported.logs); addLog("Импорт данных",file.name); alert("Данные загружены"); showPage()}
-    catch(err){alert("Не удалось прочитать файл JSON")}
-  };
-  reader.readAsText(file);
-});
+document.getElementById("clearTodayBtn").addEventListener("click",()=>{if(!confirm("Очистить все данные за сегодняшний день?"))return;const data=loadData(),key=todayKey();delete data[key];saveData(data);addLog("Очищен день",niceDate(key));renderInput()});
+document.getElementById("clearLogsBtn").addEventListener("click",()=>{if(!confirm("Очистить всю историю логов?"))return;saveLogs([]);renderLogs()});
+document.getElementById("exportBtn").addEventListener("click",()=>{const payload={data:loadData(),logs:loadLogs(),exportedAt:nowStamp()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sklad-routes-${todayKey()}.json`;a.click();URL.revokeObjectURL(a.href);addLog("Экспорт данных",`Файл sklad-routes-${todayKey()}.json`);if(location.hash==="#logs")renderLogs()});
+document.getElementById("importFile").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const imported=JSON.parse(reader.result);if(imported.data)saveData(imported.data);else saveData(imported);if(imported.logs)saveLogs(imported.logs);addLog("Импорт данных",file.name);alert("Данные загружены");showPage()}catch(err){alert("Не удалось прочитать файл JSON")}};reader.readAsText(file)});
 window.addEventListener("hashchange",showPage);
-window.addEventListener("resize",()=>{const hash=location.hash.replace(/^#/,""); if(hash.startsWith("route/"))renderRouteAnalytics(decodeURIComponent(hash.split("/")[1])); if(hash==="overall")renderOverall()});
+window.addEventListener("resize",()=>{const hash=location.hash.replace(/^#/,"");if(hash.startsWith("route/"))renderRouteAnalytics(decodeURIComponent(hash.split("/")[1]));if(hash==="overall")renderOverall()});
 showPage();
 </script>
 </body>
