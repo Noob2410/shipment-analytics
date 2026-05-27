@@ -126,6 +126,14 @@ function niceDate(key){const [y,m,d]=key.split("-");return `${d}.${m}.${y}`}
 function nowStamp(){const d=new Date();return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
 
 function emptyRow(){return{inH:"",inM:"",outH:"",outM:""}}
+function rowHuman(row){
+  const r=normalizeRow(row||emptyRow());
+  const arrival=(r.inH!==""&&r.inM!=="")?`${r.inH}:${r.inM}`:"не указано";
+  const departure=(r.outH!==""&&r.outM!=="")?`${r.outH}:${r.outM}`:"не указано";
+  const min=rowDuration(r);
+  const duration=min===null?"не рассчитано":fmtMin(min);
+  return `прибытие ${arrival}, убытие ${departure}, время отгрузки ${duration}`;
+}
 function splitTimeStr(t){
   if(!t || !String(t).includes(":")) return ["",""];
   const [h,m]=String(t).split(":");
@@ -251,18 +259,21 @@ function renderInput(){
       tbody.appendChild(tr);
     });
     const addBtn = card.querySelector(".add-row");
-    let addLocked = false;
+    let lastAddClick = 0;
     const addCourier = (event) => {
       if(event) event.preventDefault();
-      if(addLocked) return;
-      addLocked = true;
+      const now = Date.now();
+      if(now - lastAddClick < 350) return;
+      lastAddClick = now;
+
       const fresh=loadData();ensureDay(fresh,dateKey);
       fresh[dateKey][route.id].push(emptyRow());
       saveData(fresh);
-      addLog("Добавлена строка",`${niceDate(dateKey)}, ${route.title}`);
+      addLog("Добавлена строка",`${niceDate(dateKey)}, ${route.title}, добавлен курьер №${fresh[dateKey][route.id].length}`);
       renderInput();
     };
-    addBtn.addEventListener("pointerdown", addCourier);
+    addBtn.addEventListener("mousedown", addCourier);
+    addBtn.addEventListener("touchstart", addCourier, {passive:false});
     addBtn.addEventListener("click", addCourier);
     grid.appendChild(card);
   });
@@ -322,7 +333,7 @@ function savePart(el,format){
   if(format && oldValue!==value){
     const routeTitle=ROUTES.find(r=>r.id===routeId)?.title||routeId;
     const label={inH:"прибытие часы",inM:"прибытие минуты",outH:"убытие часы",outM:"убытие минуты"}[key]||key;
-    addLog("Изменено время",`${niceDate(dateKey)}, ${routeTitle}, строка ${index+1}, ${label}: ${oldValue||"пусто"} → ${value||"пусто"}`);
+    addLog("Изменено время",`${niceDate(dateKey)}, ${routeTitle}, строка ${index+1}, ${label}: было ${oldValue||"пусто"}, стало ${value||"пусто"}`);
   }
 }
 function bindDeleteButtons(){
@@ -338,7 +349,7 @@ function bindDeleteButtons(){
       data[dateKey][routeId].splice(index,1);
       if(data[dateKey][routeId].length<5)data[dateKey][routeId].push(emptyRow());
       saveData(data);
-      addLog("Удалена строка",`${niceDate(dateKey)}, ${route.title}, строка ${index+1}, было: ${JSON.stringify(row)}`);
+      addLog("Удалена строка",`${niceDate(dateKey)}, ${route.title}, строка ${index+1}: было ${rowHuman(row)}`);
       renderInput();
     });
   });
