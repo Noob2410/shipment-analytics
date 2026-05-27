@@ -1,1 +1,1 @@
-Онлайн-версия Supabase. Нужны RLS policies: SELECT true, INSERT true, DELETE true.
+Supabase online v2: расширены карточки маршрутов, добавлен выбор периода с даты по дату, ограничение 7-62 дня.
