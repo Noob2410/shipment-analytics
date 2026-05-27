@@ -2,506 +2,81 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Отгрузка курьеров по маршрутам</title>
-<meta name="theme-color" content="#172033">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Отгрузка курьеров онлайн</title>
 <style>
-:root{
-  --bg:#f4f6f8;--card:#fff;--text:#172033;--muted:#667085;--line:#d9dee7;
-  --blue:#1f4e78;--green:#d9ead3;--yellow:#fff2cc;--red:#f4cccc;
-  --shadow:0 10px 24px rgba(16,24,40,.08);--radius:18px;
-}
-*{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+:root{--bg:#f4f6f8;--card:#fff;--text:#172033;--muted:#667085;--line:#d9dee7;--blue:#1f4e78;--green:#d9ead3;--yellow:#fff2cc;--red:#f4cccc;--shadow:0 10px 24px rgba(16,24,40,.08);--radius:18px}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
 header{position:sticky;top:0;z-index:20;background:#172033;color:white;padding:14px 18px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
 .topbar{max-width:1700px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-h1{font-size:20px;margin:0}
-.date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800;white-space:nowrap}
-main{max-width:1700px;margin:18px auto 40px;padding:0 14px}
-.page{display:none}.page.active{display:block}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+h1{font-size:20px;margin:0}.date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800}.status{font-size:13px;color:#d0d5dd}
+main{max-width:1700px;margin:18px auto 40px;padding:0 14px}.page{display:none}.page.active{display:block}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 button,.btn{border:0;border-radius:12px;padding:10px 14px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;font-size:15px}
-button.light,.btn.light{background:#fff;color:var(--text);border:1px solid var(--line)}
-button.danger{background:#b42318}
-button.icon-delete{width:26px;height:26px;min-height:26px;padding:0;border-radius:999px;background:#fff;color:#b42318;border:1px solid #f0b8b2;font-size:17px;line-height:1}
-button.icon-delete:hover{background:#fff1f0}
-.routes-grid{display:grid;grid-template-columns:repeat(5,minmax(335px,1fr));gap:10px;align-items:start}
+button.light,.btn.light{background:#fff;color:var(--text);border:1px solid var(--line)}button.danger{background:#b42318}
+button.icon-delete{width:28px;height:28px;min-height:28px;padding:0;border-radius:999px;background:#fff;color:#b42318;border:1px solid #f0b8b2;font-size:18px}
+.routes-grid{display:grid;grid-template-columns:repeat(5,minmax(320px,1fr));gap:12px;align-items:start}
 .route-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
 .route-head{padding:12px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:8px}
-.route-head a{font-size:16px;font-weight:900;color:var(--text);text-decoration:none;border-bottom:2px solid transparent}
-.route-head a:hover,.route-head a:focus{border-bottom-color:var(--blue)}
-.route-kpi{font-size:11px;color:var(--muted);white-space:nowrap}
-.route-20 .route-head{background:#d9ead3}.route-21 .route-head{background:#cfe2f3}.route-927 .route-head{background:#fce5cd}.route-24-936 .route-head{background:#f4cccc}.route-11-911 .route-head{background:#ead1dc}
-table{width:100%;border-collapse:collapse;table-layout:fixed}
-th,td{border-bottom:1px solid var(--line);padding:6px 3px;text-align:center;font-size:13px}
-th{background:#f8fafc;color:#344054;font-size:11px;text-transform:uppercase;letter-spacing:.02em}
-.col-num{width:30px}.col-time{width:108px}.col-duration{width:64px}.col-delete{width:32px}
-td.num{color:var(--muted)}
-.time-pair{display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}
-.time-part{width:40px;border:1px solid var(--line);border-radius:9px;padding:7px 3px;text-align:center;background:#fff;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums}
-.time-part:focus{outline:2px solid rgba(31,78,120,.25);border-color:#1f4e78}
-.colon{font-weight:900;color:#667085}
-.duration{font-weight:900;border-radius:10px;white-space:nowrap;font-variant-numeric:tabular-nums;padding:5px 3px}
-.good{background:var(--green)}.warn{background:var(--yellow)}.bad{background:var(--red)}.empty{color:#98a2b3}
-.route-foot{padding:10px 12px;display:flex;gap:8px;justify-content:space-between;align-items:center;background:#fbfcfe}
-.mini{color:var(--muted);font-size:13px}
-.bottom-tools{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;margin:14px 0}
-.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
-.stat{padding:16px}.panel{padding:16px;margin:12px 0}
-.stat .label{color:var(--muted);font-size:13px;margin-bottom:8px}.stat .value{font-size:28px;font-weight:900}
-.panel h2,.panel h3{margin:0 0 12px}
-canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;background:#fff}
-.kpi-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0}
-.badge{border-radius:999px;padding:7px 10px;font-size:13px;font-weight:800;border:1px solid var(--line)}
-.badge.good{background:var(--green)}.badge.warn{background:var(--yellow)}.badge.bad{background:var(--red)}
-.data-table th,.data-table td{text-align:left}.data-table td:last-child,.data-table th:last-child{text-align:center}
-.logs-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
-.log-list{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:14px}
-.log-item{display:grid;grid-template-columns:170px 140px 1fr;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:14px}
-.log-item:last-child{border-bottom:0}.log-action{font-weight:900}.log-muted{color:var(--muted)}
-@media(max-width:1750px){.routes-grid{grid-template-columns:repeat(3,minmax(335px,1fr))}}
-@media(max-width:1050px){.routes-grid,.stats-grid{grid-template-columns:1fr}header{position:static}canvas{height:260px}.log-item{grid-template-columns:1fr}}
+.route-head a{font-size:17px;font-weight:900;color:var(--text);text-decoration:none;border-bottom:2px solid transparent}.route-head a:hover{border-bottom-color:var(--blue)}
+.route-kpi{font-size:12px;color:var(--muted);white-space:nowrap}.route-20 .route-head{background:#d9ead3}.route-21 .route-head{background:#cfe2f3}.route-927 .route-head{background:#fce5cd}.route-24-936 .route-head{background:#f4cccc}.route-11-911 .route-head{background:#ead1dc}
+table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border-bottom:1px solid var(--line);padding:7px 4px;text-align:center;font-size:14px}
+th{background:#f8fafc;color:#344054;font-size:12px;text-transform:uppercase}.col-num{width:34px}.col-time{width:104px}.col-duration{width:66px}.col-delete{width:34px}td.num{color:var(--muted)}
+.time-pair{display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap}.time-part{width:42px;border:1px solid var(--line);border-radius:9px;padding:8px 4px;text-align:center;background:#fff;font-size:16px;font-weight:800}.time-part:focus{outline:2px solid rgba(31,78,120,.25);border-color:#1f4e78}.colon{font-weight:900;color:#667085}
+.duration{font-weight:900;border-radius:10px;white-space:nowrap;padding:5px 3px}.good{background:var(--green)}.warn{background:var(--yellow)}.bad{background:var(--red)}.empty{color:#98a2b3}
+.route-foot{padding:10px 12px;display:flex;gap:8px;justify-content:space-between;align-items:center;background:#fbfcfe}.mini{color:var(--muted);font-size:13px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;margin:14px 0}.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.stat{padding:16px}.panel{padding:16px;margin:12px 0}.stat .label{color:var(--muted);font-size:13px;margin-bottom:8px}.stat .value{font-size:28px;font-weight:900}
+canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;background:#fff}.kpi-row,.filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;align-items:end}.badge{border-radius:999px;padding:7px 10px;font-size:13px;font-weight:800;border:1px solid var(--line)}.badge.good{background:var(--green)}.badge.warn{background:var(--yellow)}.badge.bad{background:var(--red)}
+.data-table th,.data-table td{text-align:left}.data-table td:last-child,.data-table th:last-child{text-align:center}input[type=date],select{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;color:var(--text);font-weight:700}.filter{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:13px;font-weight:800}
+@media(max-width:1600px){.routes-grid{grid-template-columns:repeat(3,minmax(320px,1fr))}}@media(max-width:1050px){.routes-grid,.stats-grid{grid-template-columns:1fr}header{position:static}canvas{height:260px}}
 </style>
 </head>
 <body>
-<header>
-  <div class="topbar">
-    <h1>Отгрузка курьеров по маршрутам</h1>
-    <div class="date-pill" id="todayLabel">Дата</div>
-  </div>
-</header>
-
+<header><div class="topbar"><h1>Отгрузка курьеров онлайн</h1><div id="syncStatus" class="status">Подключение...</div><div id="todayLabel" class="date-pill">Дата</div></div></header>
 <main>
-<section id="inputPage" class="page active">
-  <div class="actions">
-    <a class="btn" href="#overall">Общая статистика</a>
-    <button class="danger" id="clearTodayBtn">Очистить сегодняшний день</button>
-  </div>
-  <div class="routes-grid" id="routesGrid"></div>
-  <div class="bottom-tools"><a class="btn light" href="#logs">Просмотр логов</a></div>
-</section>
-
-<section id="routePage" class="page">
-  <div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn" href="#overall">Общая статистика</a></div>
-  <div id="routeAnalytics"></div>
-</section>
-
-<section id="overallPage" class="page">
-  <div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn light" href="#logs">Просмотр логов</a></div>
-  <div id="overallAnalytics"></div>
-</section>
-
-<section id="logsPage" class="page">
-  <div class="actions"><a class="btn light" href="#">← Назад к вводу</a></div>
-  <div class="panel">
-    <h2>Логи и история изменений</h2>
-    <div class="logs-toolbar">
-      <button id="exportCsvBtn">Скачать CSV</button>
-      <button id="exportBtn">Скачать данные JSON</button>
-      <label class="btn light" for="importFile">Загрузить JSON</label>
-      <input id="importFile" type="file" accept="application/json" hidden>
-      <button class="danger" id="clearLogsBtn">Очистить логи</button>
-    </div>
-    <div class="log-list" id="logList"></div>
-  </div>
-</section>
+<section id="inputPage" class="page active"><div class="actions"><a class="btn" href="#overall">Общая статистика</a><a class="btn light" href="#history">История</a><button class="danger" id="clearTodayBtn">Очистить сегодняшний день</button></div><div id="routesGrid" class="routes-grid"></div></section>
+<section id="routePage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn" href="#overall">Общая статистика</a><a class="btn light" href="#history">История</a></div><div id="routeAnalytics"></div></section>
+<section id="overallPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn light" href="#history">История</a><button class="light" id="exportCsvBtn">Скачать CSV</button></div><div id="overallAnalytics"></div></section>
+<section id="historyPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a></div><div id="historyBlock"></div></section>
 </main>
-
 <script>
-const ROUTES=[
-  {id:"20",title:"Маршрут 20",cls:"route-20"},
-  {id:"21",title:"Маршрут 21",cls:"route-21"},
-  {id:"927",title:"Маршрут 927",cls:"route-927"},
-  {id:"24/936",title:"Маршрут 24/936",cls:"route-24-936"},
-  {id:"11/911",title:"Маршрут 11/911",cls:"route-11-911"}
-];
-
-const STORAGE_KEY="skladCourierRouteData_split_v1";
-const LOG_KEY="skladCourierRouteLogs_split_v1";
-const OLD_KEYS=["skladCourierRouteData_stable_v1","skladCourierRouteData_v4","skladCourierRouteData_v3","skladCourierRouteData_v2","skladCourierRouteData_v1"];
-
-function pad(n){return String(n).padStart(2,"0")}
-function todayKey(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
-function niceDate(key){const [y,m,d]=key.split("-");return `${d}.${m}.${y}`}
-function nowStamp(){const d=new Date();return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`}
-
-function emptyRow(){return{inH:"",inM:"",outH:"",outM:""}}
-function rowHuman(row){
-  const r=normalizeRow(row||emptyRow());
-  const arrival=(r.inH!==""&&r.inM!=="")?`${r.inH}:${r.inM}`:"не указано";
-  const departure=(r.outH!==""&&r.outM!=="")?`${r.outH}:${r.outM}`:"не указано";
-  const min=rowDuration(r);
-  const duration=min===null?"не рассчитано":fmtMin(min);
-  return `прибытие ${arrival}, убытие ${departure}, время отгрузки ${duration}`;
-}
-function splitTimeStr(t){
-  if(!t || !String(t).includes(":")) return ["",""];
-  const [h,m]=String(t).split(":");
-  return [String(Number(h)).padStart(2,"0"), String(Number(m)).padStart(2,"0")];
-}
-function normalizeRow(row){
-  if(!row || typeof row!=="object") return emptyRow();
-  if("inH" in row || "inM" in row || "outH" in row || "outM" in row){
-    return {
-      inH: validPart(row.inH,"h"), inM: validPart(row.inM,"m"),
-      outH: validPart(row.outH,"h"), outM: validPart(row.outM,"m")
-    };
-  }
-  const [ih,im]=splitTimeStr(row.in);
-  const [oh,om]=splitTimeStr(row.out);
-  return {inH:ih,inM:im,outH:oh,outM:om};
-}
-function normalizeData(data){
-  const out={};
-  Object.keys(data||{}).forEach(date=>{
-    out[date]={};
-    ROUTES.forEach(r=>{
-      out[date][r.id]=(data[date]?.[r.id]||[]).map(normalizeRow);
-    });
-  });
-  return out;
-}
-function loadData(){
-  try{
-    const current=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null");
-    if(current) return normalizeData(current);
-  }catch(e){}
-  for(const key of OLD_KEYS){
-    try{
-      const old=JSON.parse(localStorage.getItem(key)||"null");
-      if(old){
-        const migrated=normalizeData(old);
-        localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
-        return migrated;
-      }
-    }catch(e){}
-  }
-  return {};
-}
-function saveData(data){localStorage.setItem(STORAGE_KEY,JSON.stringify(normalizeData(data)))}
-function loadLogs(){try{return JSON.parse(localStorage.getItem(LOG_KEY))||[]}catch(e){return[]}}
-function saveLogs(logs){localStorage.setItem(LOG_KEY,JSON.stringify(logs.slice(0,1000)))}
-function addLog(action,details){const logs=loadLogs();logs.unshift({time:nowStamp(),action,details});saveLogs(logs)}
-function ensureDay(data,dateKey){data[dateKey] ||= {}; ROUTES.forEach(r=>data[dateKey][r.id] ||= [])}
-
-function cleanDigits(v){return String(v||"").replace(/\D/g,"").slice(0,2)}
-function validPart(value,type){
-  let v=cleanDigits(value);
-  if(v==="") return "";
-  let n=Number(v);
-  if(type==="h" && n>23) n=23;
-  if(type==="m" && n>59) n=59;
-  if(n<0) n=0;
-  return pad(n);
-}
-function rowTime(row,side){
-  const h=row[side+"H"], m=row[side+"M"];
-  if(h==="" || m==="") return "";
-  return `${pad(Number(h))}:${pad(Number(m))}`;
-}
-function minutesBetween(start,end){
-  if(!start||!end)return null;
-  const [sh,sm]=start.split(":").map(Number),[eh,em]=end.split(":").map(Number);
-  if([sh,sm,eh,em].some(Number.isNaN))return null;
-  let a=sh*60+sm,b=eh*60+em;if(b<a)b+=1440;return b-a;
-}
-function rowDuration(row){return minutesBetween(rowTime(row,"in"),rowTime(row,"out"))}
-function fmtMin(min){if(min===null||min===undefined||Number.isNaN(min))return"—";const h=Math.floor(min/60),m=Math.round(min%60);return h>0?`${h}:${pad(m)}`:`${m} мин`}
-function kpiClass(min){if(min===null||min===undefined)return"empty";if(min<=40)return"good";if(min<=60)return"warn";return"bad"}
-function kpiText(min){if(min===null||min===undefined)return"—";if(min<=40)return"≤40";if(min<=60)return"40–60";return">60"}
-
-function partInput(routeId,index,key,value,type){
-  return `<input class="time-part" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="00" value="${value||""}" data-route="${routeId}" data-index="${index}" data-key="${key}" data-type="${type}">`;
-}
-function timePair(routeId,index,row,side){
-  return `<div class="time-pair">
-    ${partInput(routeId,index,side+"H",row[side+"H"],"h")}
-    <span class="colon">:</span>
-    ${partInput(routeId,index,side+"M",row[side+"M"],"m")}
-  </div>`;
-}
-function renderInput(){
-  const dateKey=todayKey();
-  document.getElementById("todayLabel").textContent=`Сегодня: ${niceDate(dateKey)}`;
-  const data=loadData();ensureDay(data,dateKey);saveData(data);
-  const grid=document.getElementById("routesGrid");grid.innerHTML="";
-  ROUTES.forEach(route=>{
-    const rows=data[dateKey][route.id];
-    while(rows.length<5)rows.push(emptyRow());
-    const completed=rows.map(rowDuration).filter(x=>x!==null);
-    const avg=completed.length?completed.reduce((s,x)=>s+x,0)/completed.length:null;
-    const card=document.createElement("article");
-    card.className=`route-card ${route.cls}`;
-    card.innerHTML=`
-      <div class="route-head">
-        <a href="#route/${encodeURIComponent(route.id)}">${route.title}</a>
-        <div class="route-kpi" data-kpi-route="${route.id}">Среднее: ${fmtMin(avg)}</div>
-      </div>
-      <table>
-        <colgroup><col class="col-num"><col class="col-time"><col class="col-time"><col class="col-duration"><col class="col-delete"></colgroup>
-        <thead><tr><th>№</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <div class="route-foot">
-        <button type="button" class="light clear-route" data-clear-route="${route.id}">Очистить маршрут</button>
-        <span class="mini">Заполнено: <span data-filled-route="${route.id}">${completed.length}</span></span>
-      </div>`;
-    const tbody=card.querySelector("tbody");
-    rows.forEach((row,i)=>{
-      const min=rowDuration(row);
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
-        <td class="num">${i+1}</td>
-        <td>${timePair(route.id,i,row,"in")}</td>
-        <td>${timePair(route.id,i,row,"out")}</td>
-        <td><span class="duration ${kpiClass(min)}" data-duration-route="${route.id}" data-duration-index="${i}">${fmtMin(min)}</span></td>
-        <td><button type="button" class="icon-delete" title="Удалить строку" data-delete-route="${route.id}" data-delete-index="${i}">×</button></td>`;
-      tbody.appendChild(tr);
-    });
-
-    grid.appendChild(card);
-  });
-  bindInputs();
-  bindDeleteButtons();
-  bindClearRouteButtons();
-}
-function updateVisual(routeId,index){
-  const data=loadData(), dateKey=todayKey(); ensureDay(data,dateKey);
-  const rows=data[dateKey][routeId]||[];
-  const row=rows[index]||emptyRow();
-  const min=rowDuration(row);
-  const dur=document.querySelector(`[data-duration-route="${routeId}"][data-duration-index="${index}"]`);
-  if(dur){dur.textContent=fmtMin(min); dur.className=`duration ${kpiClass(min)}`;}
-  const completed=rows.map(rowDuration).filter(x=>x!==null);
-  const avg=completed.length?completed.reduce((s,x)=>s+x,0)/completed.length:null;
-  const kpi=document.querySelector(`[data-kpi-route="${routeId}"]`);
-  if(kpi) kpi.textContent=`Среднее: ${fmtMin(avg)}`;
-  const filled=document.querySelector(`[data-filled-route="${routeId}"]`);
-  if(filled) filled.textContent=completed.length;
-}
-function bindInputs(){
-  document.querySelectorAll(".time-part").forEach(input=>{
-    input.addEventListener("input",e=>{
-      const el=e.target;
-      const raw=cleanDigits(el.value);
-      el.value=raw;
-      savePart(el,false);
-      if(raw.length>=2){
-        moveToNextTimeField(el);
-      }
-    });
-    input.addEventListener("blur",e=>savePart(e.target,true));
-    input.addEventListener("keydown",e=>{
-      if(e.key==="Enter"){
-        e.preventDefault();
-        savePart(e.target,true);
-        moveToNextTimeField(e.target);
-      }
-    });
-  });
-}
-function moveToNextTimeField(el){
-  const routeId=el.dataset.route;
-  const index=Number(el.dataset.index);
-  const key=el.dataset.key;
-  const order=["inH","inM","outH","outM"];
-  const currentPos=order.indexOf(key);
-  let nextKey, nextIndex=index;
-  if(currentPos>=0 && currentPos<order.length-1){
-    nextKey=order[currentPos+1];
-  }else{
-    nextIndex=index+1;
-    nextKey="inH";
-  }
-  const next=document.querySelector(`.time-part[data-route="${routeId}"][data-index="${nextIndex}"][data-key="${nextKey}"]`);
-  if(next){
-    next.focus();
-    next.select();
-  }
-}
-function maybeAutoAddRow(routeId,index){
-  const dateKey=todayKey();
-  const data=loadData(); ensureDay(data,dateKey);
-  const rows=data[dateKey][routeId]||[];
-  const row=rows[index];
-  if(!row) return;
-  const isLast=index===rows.length-1;
-  const full=row.inH!=="" && row.inM!=="" && row.outH!=="" && row.outM!=="";
-  if(isLast && full){
-    rows.push(emptyRow());
-    saveData(data);
-    const routeTitle=ROUTES.find(r=>r.id===routeId)?.title||routeId;
-    addLog("Автодобавление строки",`${niceDate(dateKey)}, ${routeTitle}: добавлена новая пустая строка после заполнения курьера №${index+1}`);
-    renderInput();
-    const next=document.querySelector(`.time-part[data-route="${routeId}"][data-index="${index+1}"][data-key="inH"]`);
-    if(next) next.focus();
-  }
-}
-function savePart(el,format){
-  const dateKey=todayKey();
-  const data=loadData(); ensureDay(data,dateKey);
-  const routeId=el.dataset.route, index=Number(el.dataset.index), key=el.dataset.key, type=el.dataset.type;
-  data[dateKey][routeId][index] ||= emptyRow();
-  const oldValue=data[dateKey][routeId][index][key]||"";
-  const value=format ? validPart(el.value,type) : cleanDigits(el.value);
-  data[dateKey][routeId][index][key]=value;
-  el.value=value;
-  saveData(data);
-  updateVisual(routeId,index);
-  if(format && oldValue!==value){
-    const routeTitle=ROUTES.find(r=>r.id===routeId)?.title||routeId;
-    const label={inH:"прибытие часы",inM:"прибытие минуты",outH:"убытие часы",outM:"убытие минуты"}[key]||key;
-    addLog("Изменено время",`${niceDate(dateKey)}, ${routeTitle}, строка ${index+1}, ${label}: было ${oldValue||"пусто"}, стало ${value||"пусто"}`);
-  }
-  if(format){
-    maybeAutoAddRow(routeId,index);
-  }
-}
-function bindDeleteButtons(){
-  const dateKey=todayKey();
-  document.querySelectorAll("[data-delete-route]").forEach(btn=>{
-    btn.addEventListener("click",e=>{
-      const routeId=e.currentTarget.dataset.deleteRoute,index=Number(e.currentTarget.dataset.deleteIndex);
-      const route=ROUTES.find(r=>r.id===routeId);
-      const data=loadData();ensureDay(data,dateKey);
-      const row=data[dateKey][routeId][index]||emptyRow();
-      const hasData=Object.values(row).some(Boolean);
-      if(hasData&&!confirm(`Удалить строку №${index+1} в ${route.title}?`))return;
-      data[dateKey][routeId].splice(index,1);
-      if(data[dateKey][routeId].length<5)data[dateKey][routeId].push(emptyRow());
-      saveData(data);
-      addLog("Удалена строка",`${niceDate(dateKey)}, ${route.title}, строка ${index+1}: было ${rowHuman(row)}`);
-      renderInput();
-    });
-  });
-}
-function bindClearRouteButtons(){
-  const dateKey=todayKey();
-  document.querySelectorAll("[data-clear-route]").forEach(btn=>{
-    btn.addEventListener("click",e=>{
-      const routeId=e.currentTarget.dataset.clearRoute;
-      const route=ROUTES.find(r=>r.id===routeId);
-      const data=loadData(); ensureDay(data,dateKey);
-      const rows=data[dateKey][routeId]||[];
-      const filledCount=rows.filter(row=>Object.values(row).some(Boolean)).length;
-      if(filledCount>0 && !confirm(`Очистить ${route.title} за сегодня? Заполненных строк: ${filledCount}`)) return;
-      data[dateKey][routeId]=[];
-      for(let i=0;i<5;i++) data[dateKey][routeId].push(emptyRow());
-      saveData(data);
-      addLog("Очищен маршрут",`${niceDate(dateKey)}, ${route.title}: очищено строк ${filledCount}`);
-      renderInput();
-    });
-  });
-}
-
-function flatRecords(routeId=null){
-  const data=loadData(),rows=[];
-  Object.keys(data).sort().forEach(date=>{ROUTES.forEach(route=>{
-    if(routeId&&route.id!==routeId)return;
-    (data[date][route.id]||[]).forEach((item,index)=>{
-      const row=normalizeRow(item);
-      const min=rowDuration(row);
-      if(min!==null)rows.push({date,routeId:route.id,routeTitle:route.title,index:index+1,in:rowTime(row,"in"),out:rowTime(row,"out"),min});
-    });
-  })});
-  return rows;
-}
-function calcStats(rows){
-  const count=rows.length,total=rows.reduce((s,r)=>s+r.min,0),avg=count?total/count:null;
-  const green=rows.filter(r=>r.min<=40).length,yellow=rows.filter(r=>r.min>40&&r.min<=60).length,red=rows.filter(r=>r.min>60).length;
-  const min=count?Math.min(...rows.map(r=>r.min)):null,max=count?Math.max(...rows.map(r=>r.min)):null,sla=count?Math.round(((green+yellow)/count)*100):0;
-  return{count,total,avg,green,yellow,red,min,max,sla};
-}
-function dailyAverage(rows){const map={};rows.forEach(r=>{map[r.date]||=[];map[r.date].push(r.min)});return Object.keys(map).sort().map(date=>({date,avg:map[date].reduce((s,x)=>s+x,0)/map[date].length}))}
-function statsCards(stats){
-  return `<div class="stats-grid">
-    <div class="stat"><div class="label">Курьеров</div><div class="value">${stats.count}</div></div>
-    <div class="stat"><div class="label">Среднее время</div><div class="value">${fmtMin(stats.avg)}</div></div>
-    <div class="stat"><div class="label">Общее время</div><div class="value">${fmtMin(stats.total)}</div></div>
-    <div class="stat"><div class="label">KPI ≤60 мин</div><div class="value">${stats.sla}%</div></div>
-  </div><div class="kpi-row">
-    <span class="badge good">≤40 мин: ${stats.green}</span><span class="badge warn">41–60 мин: ${stats.yellow}</span><span class="badge bad">>60 мин: ${stats.red}</span>
-    <span class="badge">Мин: ${fmtMin(stats.min)}</span><span class="badge">Макс: ${fmtMin(stats.max)}</span>
-  </div>`;
-}
-function drawLineChart(canvas,points,title){
-  const ctx=canvas.getContext("2d"),ratio=window.devicePixelRatio||1;
-  canvas.width=canvas.clientWidth*ratio;canvas.height=canvas.clientHeight*ratio;ctx.scale(ratio,ratio);
-  const W=canvas.clientWidth,H=canvas.clientHeight;ctx.clearRect(0,0,W,H);ctx.font="14px system-ui";ctx.fillStyle="#172033";ctx.fillText(title,18,26);
-  const padL=54,padR=18,padT=44,padB=42,plotW=W-padL-padR,plotH=H-padT-padB;
-  ctx.strokeStyle="#d9dee7";ctx.lineWidth=1;for(let i=0;i<=4;i++){const y=padT+(plotH/4)*i;ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke()}
-  if(points.length===0){ctx.fillStyle="#98a2b3";ctx.font="22px system-ui";ctx.fillText("Нет данных для графика",padL,padT+80);return}
-  const maxY=Math.max(70,Math.ceil(Math.max(...points.map(p=>p.avg))/10)*10);
-  ctx.fillStyle="#667085";ctx.font="12px system-ui";for(let i=0;i<=4;i++){const val=Math.round(maxY-(maxY/4)*i),y=padT+(plotH/4)*i;ctx.fillText(`${val}`,14,y+4)}
-  const xFor=i=>points.length===1?padL+plotW/2:padL+(plotW/(points.length-1))*i,yFor=v=>padT+plotH-(v/maxY)*plotH;
-  ctx.strokeStyle="#1f4e78";ctx.lineWidth=3;ctx.beginPath();points.forEach((p,i)=>{const x=xFor(i),y=yFor(p.avg);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});ctx.stroke();
-  ctx.fillStyle="#1f4e78";points.forEach((p,i)=>{const x=xFor(i),y=yFor(p.avg);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()});
-}
-function renderRouteAnalytics(routeId){
-  const route=ROUTES.find(r=>r.id===routeId),container=document.getElementById("routeAnalytics");
-  if(!route){container.innerHTML=`<div class="panel"><h2>Маршрут не найден</h2></div>`;return}
-  const rows=flatRecords(routeId),stats=calcStats(rows),daily=dailyAverage(rows);
-  container.innerHTML=`<div class="panel"><h2>${route.title}: аналитика</h2>${statsCards(stats)}</div><div class="panel"><canvas id="routeChart"></canvas></div>
-  <div class="panel"><h3>Детальные данные</h3><table class="data-table"><thead><tr><th>Дата</th><th>Курьер №</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th>KPI</th></tr></thead>
-  <tbody>${rows.slice().reverse().map(r=>`<tr><td>${niceDate(r.date)}</td><td>${r.index}</td><td>${r.in}</td><td>${r.out}</td><td>${fmtMin(r.min)}</td><td><span class="badge ${kpiClass(r.min)}">${kpiText(r.min)}</span></td></tr>`).join("")||`<tr><td colspan="6">Данных пока нет</td></tr>`}</tbody></table></div>`;
-  drawLineChart(document.getElementById("routeChart"),daily,`Среднее время по дням — ${route.title}`);
-}
-function renderOverall(){
-  const rows=flatRecords(),stats=calcStats(rows),daily=dailyAverage(rows);
-  const byRoute=ROUTES.map(route=>({route,stats:calcStats(rows.filter(r=>r.routeId===route.id))}));
-  document.getElementById("overallAnalytics").innerHTML=`<div class="panel"><h2>Общая статистика по всем маршрутам</h2>${statsCards(stats)}</div><div class="panel"><canvas id="overallChart"></canvas></div>
-  <div class="panel"><h3>Сводка по маршрутам</h3><table class="data-table"><thead><tr><th>Маршрут</th><th>Курьеров</th><th>Среднее</th><th>Общее время</th><th>≤40</th><th>41–60</th><th>>60</th><th>KPI ≤60</th></tr></thead>
-  <tbody>${byRoute.map(x=>`<tr><td><a href="#route/${encodeURIComponent(x.route.id)}">${x.route.title}</a></td><td>${x.stats.count}</td><td>${fmtMin(x.stats.avg)}</td><td>${fmtMin(x.stats.total)}</td><td>${x.stats.green}</td><td>${x.stats.yellow}</td><td>${x.stats.red}</td><td>${x.stats.sla}%</td></tr>`).join("")}</tbody></table></div>`;
-  drawLineChart(document.getElementById("overallChart"),daily,"Общее среднее время всех курьеров по дням");
-}
-function renderLogs(){const logs=loadLogs();document.getElementById("logList").innerHTML=logs.map(l=>`<div class="log-item"><div class="log-muted">${l.time}</div><div class="log-action">${l.action}</div><div>${l.details}</div></div>`).join("")||`<div class="log-item"><div class="log-muted">Логов пока нет</div><div></div><div></div></div>`}
-function showPage(){
-  const hash=location.hash.replace(/^#/,"");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  if(hash.startsWith("route/")){document.getElementById("routePage").classList.add("active");renderRouteAnalytics(decodeURIComponent(hash.split("/")[1]))}
-  else if(hash==="overall"){document.getElementById("overallPage").classList.add("active");renderOverall()}
-  else if(hash==="logs"){document.getElementById("logsPage").classList.add("active");renderLogs()}
-  else{document.getElementById("inputPage").classList.add("active");renderInput()}
-}
-document.getElementById("clearTodayBtn").addEventListener("click",()=>{if(!confirm("Очистить все данные за сегодняшний день?"))return;const data=loadData(),key=todayKey();delete data[key];saveData(data);addLog("Очищен день",niceDate(key));renderInput()});
-document.getElementById("clearLogsBtn").addEventListener("click",()=>{if(!confirm("Очистить всю историю логов?"))return;saveLogs([]);renderLogs()});
-
-function csvEscape(value){
-  const s=String(value??"");
-  return `"${s.replace(/"/g,'""')}"`;
-}
-function exportCSV(){
-  const rows=flatRecords();
-  const header=["Дата","Маршрут","Курьер №","Прибытие","Убытие","Время отгрузки, мин","KPI"];
-  const lines=[header.map(csvEscape).join(";")];
-  rows.forEach(r=>{
-    lines.push([
-      niceDate(r.date),
-      r.routeTitle,
-      r.index,
-      r.in,
-      r.out,
-      r.min,
-      kpiText(r.min)
-    ].map(csvEscape).join(";"));
-  });
-  const csv="\ufeff"+lines.join("\n");
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(blob);
-  a.download=`sklad-routes-${todayKey()}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-  addLog("Экспорт CSV",`Файл sklad-routes-${todayKey()}.csv, строк: ${rows.length}`);
-  if(location.hash==="#logs")renderLogs();
-}
-document.getElementById("exportCsvBtn").addEventListener("click",exportCSV);
-
-document.getElementById("exportBtn").addEventListener("click",()=>{const payload={data:loadData(),logs:loadLogs(),exportedAt:nowStamp()};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sklad-routes-${todayKey()}.json`;a.click();URL.revokeObjectURL(a.href);addLog("Экспорт данных",`Файл sklad-routes-${todayKey()}.json`);if(location.hash==="#logs")renderLogs()});
-document.getElementById("importFile").addEventListener("change",e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const imported=JSON.parse(reader.result);if(imported.data)saveData(imported.data);else saveData(imported);if(imported.logs)saveLogs(imported.logs);addLog("Импорт данных",file.name);alert("Данные загружены");showPage()}catch(err){alert("Не удалось прочитать файл JSON")}};reader.readAsText(file)});
-window.addEventListener("hashchange",showPage);
-window.addEventListener("resize",()=>{const hash=location.hash.replace(/^#/,"");if(hash.startsWith("route/"))renderRouteAnalytics(decodeURIComponent(hash.split("/")[1]));if(hash==="overall")renderOverall()});
-showPage();
+const SUPABASE_URL="https://zbylwxmzkqyovpsymsje.supabase.co";
+const SUPABASE_KEY="sb_publishable_bg_8lAtn1L62tRM0q7_XiQ__UzwoilL";
+const TABLE_NAME="sklad-routes";
+const ROUTES=[{id:"20",title:"Маршрут 20",cls:"route-20"},{id:"21",title:"Маршрут 21",cls:"route-21"},{id:"927",title:"Маршрут 927",cls:"route-927"},{id:"24/936",title:"Маршрут 24/936",cls:"route-24-936"},{id:"11/911",title:"Маршрут 11/911",cls:"route-11-911"}];
+let DATA={},ALL_ROWS=[],SAVE_TIMER=null;
+function pad(n){return String(n).padStart(2,"0")}function todayKey(){const d=new Date();return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}function niceDate(k){const [y,m,d]=k.split("-");return `${d}.${m}.${y}`}function isoDaysAgo(n){const d=new Date();d.setDate(d.getDate()-n);return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}function setStatus(t){document.getElementById("syncStatus").textContent=t}
+function emptyRow(){return{inH:"",inM:"",outH:"",outM:""}}function cleanDigits(v){return String(v||"").replace(/\D/g,"").slice(0,2)}function validPart(v,t){v=cleanDigits(v);if(v==="")return"";let n=Number(v);if(t==="h"&&n>23)n=23;if(t==="m"&&n>59)n=59;if(n<0)n=0;return pad(n)}
+function rowTime(r,s){const h=r[s+"H"],m=r[s+"M"];return h!==""&&m!==""?`${pad(Number(h))}:${pad(Number(m))}`:""}function minutesBetween(a,b){if(!a||!b)return null;const[sh,sm]=a.split(":").map(Number),[eh,em]=b.split(":").map(Number);let x=sh*60+sm,y=eh*60+em;if(y<x)y+=1440;return y-x}function rowDuration(r){return minutesBetween(rowTime(r,"in"),rowTime(r,"out"))}
+function fmtMin(v){if(v===null||v===undefined||Number.isNaN(v))return"—";const h=Math.floor(v/60),m=Math.round(v%60);return h?`${h}:${pad(m)}`:`${m} мин`}function kpiClass(v){if(v===null||v===undefined)return"empty";if(v<=40)return"good";if(v<=60)return"warn";return"bad"}function kpiText(v){if(v===null||v===undefined)return"—";if(v<=40)return"≤40";if(v<=60)return"40–60";return">60"}function splitTime(t){if(!t||!t.includes(":"))return["",""];const[h,m]=t.split(":");return[pad(Number(h)||0),pad(Number(m)||0)]}function ensureDay(d){DATA[d] ||= {};ROUTES.forEach(r=>DATA[d][r.id] ||= [])}
+async function api(path,opt={}){const res=await fetch(`${SUPABASE_URL}/rest/v1/${path}`,{...opt,headers:{apikey:SUPABASE_KEY,Authorization:`Bearer ${SUPABASE_KEY}`,"Content-Type":"application/json",Prefer:"return=minimal",...(opt.headers||{})}});if(!res.ok)throw new Error(await res.text());if(res.status===204)return null;const txt=await res.text();return txt?JSON.parse(txt):null}
+function toData(rows){const d={};rows.forEach(r=>{d[r.date] ||= {};d[r.date][r.route] ||= [];const[ih,im]=splitTime(r.in_time),[oh,om]=splitTime(r.out_time);d[r.date][r.route].push({inH:ih,inM:im,outH:oh,outM:om})});Object.keys(d).forEach(k=>ROUTES.forEach(r=>d[k][r.id] ||= []));return d}
+async function loadRemote(){setStatus("Загрузка...");const from=isoDaysAgo(61);const rows=await api(`${encodeURIComponent(TABLE_NAME)}?select=*&date=gte.${from}&order=date.asc,route.asc,courier_index.asc`);ALL_ROWS=rows||[];DATA=toData(ALL_ROWS);setStatus("Онлайн: данные загружены")}
+function completedPayload(d,route){ensureDay(d);return(DATA[d][route]||[]).map((row,i)=>({row,i})).filter(x=>rowDuration(x.row)!==null).map(x=>({date:d,route:route,courier_index:x.i+1,in_time:rowTime(x.row,"in"),out_time:rowTime(x.row,"out"),duration_minutes:rowDuration(x.row)}))}
+async function syncRoute(d,route){setStatus("Сохранение...");await api(`${encodeURIComponent(TABLE_NAME)}?date=eq.${d}&route=eq.${encodeURIComponent(route)}`,{method:"DELETE"});const p=completedPayload(d,route);if(p.length)await api(`${encodeURIComponent(TABLE_NAME)}`,{method:"POST",body:JSON.stringify(p)});await loadRemote();setStatus("Онлайн: сохранено")}
+function scheduleSync(route){clearTimeout(SAVE_TIMER);const d=todayKey();SAVE_TIMER=setTimeout(()=>syncRoute(d,route).catch(e=>{console.error(e);setStatus("Ошибка: добавь DELETE policy")}),450)}
+function partInput(route,i,key,val,type){return `<input class="time-part" inputmode="numeric" autocomplete="off" maxlength="2" placeholder="00" value="${val||""}" data-route="${route}" data-index="${i}" data-key="${key}" data-type="${type}">`}function timePair(route,i,row,side){return `<div class="time-pair">${partInput(route,i,side+"H",row[side+"H"],"h")}<span class="colon">:</span>${partInput(route,i,side+"M",row[side+"M"],"m")}</div>`}
+function renderInput(){const d=todayKey();document.getElementById("todayLabel").textContent=`Сегодня: ${niceDate(d)}`;ensureDay(d);const grid=document.getElementById("routesGrid");grid.innerHTML="";ROUTES.forEach(route=>{const rows=DATA[d][route.id];while(rows.length<5)rows.push(emptyRow());const comp=rows.map(rowDuration).filter(x=>x!==null),avg=comp.length?comp.reduce((s,x)=>s+x,0)/comp.length:null;const card=document.createElement("article");card.className=`route-card ${route.cls}`;card.innerHTML=`<div class="route-head"><a href="#route/${encodeURIComponent(route.id)}">${route.title}</a><div class="route-kpi" data-kpi-route="${route.id}">Среднее: ${fmtMin(avg)}</div></div><table><colgroup><col class="col-num"><col class="col-time"><col class="col-time"><col class="col-duration"><col class="col-delete"></colgroup><thead><tr><th>№</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th></th></tr></thead><tbody></tbody></table><div class="route-foot"><button class="light clear-route" data-clear-route="${route.id}">Очистить маршрут</button><span class="mini">Заполнено: <span data-filled-route="${route.id}">${comp.length}</span></span></div>`;const tb=card.querySelector("tbody");rows.forEach((row,i)=>{const min=rowDuration(row),tr=document.createElement("tr");tr.innerHTML=`<td class="num">${i+1}</td><td>${timePair(route.id,i,row,"in")}</td><td>${timePair(route.id,i,row,"out")}</td><td><span class="duration ${kpiClass(min)}" data-duration-route="${route.id}" data-duration-index="${i}">${fmtMin(min)}</span></td><td><button class="icon-delete" data-delete-route="${route.id}" data-delete-index="${i}">×</button></td>`;tb.appendChild(tr)});grid.appendChild(card)});bindInputs();bindDeleteButtons();bindClearRouteButtons()}
+function updateVisual(route,i){const d=todayKey();ensureDay(d);const rows=DATA[d][route]||[],row=rows[i]||emptyRow(),min=rowDuration(row);const dur=document.querySelector(`[data-duration-route="${route}"][data-duration-index="${i}"]`);if(dur){dur.textContent=fmtMin(min);dur.className=`duration ${kpiClass(min)}`}const comp=rows.map(rowDuration).filter(x=>x!==null),avg=comp.length?comp.reduce((s,x)=>s+x,0)/comp.length:null;const k=document.querySelector(`[data-kpi-route="${route}"]`);if(k)k.textContent=`Среднее: ${fmtMin(avg)}`;const f=document.querySelector(`[data-filled-route="${route}"]`);if(f)f.textContent=comp.length}
+function bindInputs(){document.querySelectorAll(".time-part").forEach(inp=>{inp.addEventListener("input",e=>{const el=e.target;el.value=cleanDigits(el.value);savePart(el,false);if(el.value.length>=2)moveNext(el)});inp.addEventListener("blur",e=>savePart(e.target,true));inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();savePart(e.target,true);moveNext(e.target)}})})}
+function moveNext(el){const route=el.dataset.route,i=Number(el.dataset.index),key=el.dataset.key,order=["inH","inM","outH","outM"];let pos=order.indexOf(key),nextKey,nextI=i;if(pos<3)nextKey=order[pos+1];else{nextI=i+1;nextKey="inH"}const next=document.querySelector(`.time-part[data-route="${route}"][data-index="${nextI}"][data-key="${nextKey}"]`);if(next){next.focus();next.select()}}
+function savePart(el,format){const d=todayKey();ensureDay(d);const route=el.dataset.route,i=Number(el.dataset.index),key=el.dataset.key,type=el.dataset.type;DATA[d][route][i] ||= emptyRow();const val=format?validPart(el.value,type):cleanDigits(el.value);DATA[d][route][i][key]=val;el.value=val;updateVisual(route,i);if(format)maybeAutoAdd(route,i);scheduleSync(route)}
+function maybeAutoAdd(route,i){const d=todayKey(),rows=DATA[d][route],r=rows[i];if(i===rows.length-1&&r.inH&&r.inM&&r.outH&&r.outM){rows.push(emptyRow());renderInput();const next=document.querySelector(`.time-part[data-route="${route}"][data-index="${i+1}"][data-key="inH"]`);if(next)next.focus()}}
+function bindDeleteButtons(){const d=todayKey();document.querySelectorAll("[data-delete-route]").forEach(btn=>btn.onclick=e=>{const route=e.currentTarget.dataset.deleteRoute,i=Number(e.currentTarget.dataset.deleteIndex),r=DATA[d][route][i]||emptyRow();if(Object.values(r).some(Boolean)&&!confirm(`Удалить строку №${i+1}?`))return;DATA[d][route].splice(i,1);if(DATA[d][route].length<5)DATA[d][route].push(emptyRow());renderInput();scheduleSync(route)})}
+function bindClearRouteButtons(){const d=todayKey();document.querySelectorAll("[data-clear-route]").forEach(btn=>btn.onclick=e=>{const route=e.currentTarget.dataset.clearRoute;if(!confirm("Очистить маршрут за сегодня?"))return;DATA[d][route]=[emptyRow(),emptyRow(),emptyRow(),emptyRow(),emptyRow()];renderInput();scheduleSync(route)})}
+function flatRecords(route=null,days=62){const from=isoDaysAgo(days-1);return ALL_ROWS.filter(r=>r.date>=from).filter(r=>!route||r.route===route).map(r=>({date:r.date,routeId:r.route,routeTitle:ROUTES.find(x=>x.id===r.route)?.title||r.route,index:r.courier_index,in:r.in_time,out:r.out_time,min:r.duration_minutes}))}
+function calcStats(rows){const count=rows.length,total=rows.reduce((s,r)=>s+r.min,0),avg=count?total/count:null;const green=rows.filter(r=>r.min<=40).length,yellow=rows.filter(r=>r.min>40&&r.min<=60).length,red=rows.filter(r=>r.min>60).length,min=count?Math.min(...rows.map(r=>r.min)):null,max=count?Math.max(...rows.map(r=>r.min)):null,sla=count?Math.round(((green+yellow)/count)*100):0;return{count,total,avg,green,yellow,red,min,max,sla}}
+function dailyAverage(rows){const m={};rows.forEach(r=>{m[r.date]||=[];m[r.date].push(r.min)});return Object.keys(m).sort().map(date=>({date,avg:m[date].reduce((s,x)=>s+x,0)/m[date].length}))}
+function statsCards(s){return `<div class="stats-grid"><div class="stat"><div class="label">Курьеров</div><div class="value">${s.count}</div></div><div class="stat"><div class="label">Среднее время</div><div class="value">${fmtMin(s.avg)}</div></div><div class="stat"><div class="label">Общее время</div><div class="value">${fmtMin(s.total)}</div></div><div class="stat"><div class="label">KPI ≤60 мин</div><div class="value">${s.sla}%</div></div></div><div class="kpi-row"><span class="badge good">≤40 мин: ${s.green}</span><span class="badge warn">41–60 мин: ${s.yellow}</span><span class="badge bad">>60 мин: ${s.red}</span><span class="badge">Мин: ${fmtMin(s.min)}</span><span class="badge">Макс: ${fmtMin(s.max)}</span></div>`}
+function periodControls(id,cur){return `<div class="filters"><label class="filter">Период<select id="${id}"><option value="7" ${cur==7?"selected":""}>7 дней</option><option value="14" ${cur==14?"selected":""}>14 дней</option><option value="30" ${cur==30?"selected":""}>30 дней</option><option value="62" ${cur==62?"selected":""}>62 дня</option></select></label></div>`}
+function drawLineChart(canvas,points,title){const ctx=canvas.getContext("2d"),ratio=devicePixelRatio||1;canvas.width=canvas.clientWidth*ratio;canvas.height=canvas.clientHeight*ratio;ctx.scale(ratio,ratio);const W=canvas.clientWidth,H=canvas.clientHeight;ctx.clearRect(0,0,W,H);ctx.font="14px system-ui";ctx.fillStyle="#172033";ctx.fillText(title,18,26);if(!points.length){ctx.fillStyle="#98a2b3";ctx.font="22px system-ui";ctx.fillText("Нет данных для графика",54,120);return}const pL=54,pR=18,pT=44,pB=42,pW=W-pL-pR,pH=H-pT-pB,maxY=Math.max(70,Math.ceil(Math.max(...points.map(p=>p.avg))/10)*10);ctx.strokeStyle="#d9dee7";for(let i=0;i<=4;i++){let y=pT+pH/4*i;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle="#667085";ctx.font="12px system-ui";ctx.fillText(String(Math.round(maxY-(maxY/4)*i)),14,y+4)}const xFor=i=>points.length===1?pL+pW/2:pL+(pW/(points.length-1))*i,yFor=v=>pT+pH-(v/maxY)*pH;ctx.strokeStyle="#1f4e78";ctx.lineWidth=3;ctx.beginPath();points.forEach((p,i)=>{const x=xFor(i),y=yFor(p.avg);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.fillStyle="#1f4e78";points.forEach((p,i)=>{ctx.beginPath();ctx.arc(xFor(i),yFor(p.avg),4,0,Math.PI*2);ctx.fill()})}
+function renderRouteAnalytics(route,days=30){const rt=ROUTES.find(r=>r.id===route),rows=flatRecords(route,days),stats=calcStats(rows),daily=dailyAverage(rows);document.getElementById("routeAnalytics").innerHTML=`<div class="panel"><h2>${rt.title}: аналитика</h2>${periodControls("routePeriod",days)}${statsCards(stats)}</div><div class="panel"><canvas id="routeChart"></canvas></div><div class="panel"><h3>История</h3>${historyTable(rows)}</div>`;document.getElementById("routePeriod").onchange=e=>renderRouteAnalytics(route,Number(e.target.value));drawLineChart(document.getElementById("routeChart"),daily,`Среднее время по дням — ${rt.title}`)}
+function renderOverall(days=30){const rows=flatRecords(null,days),stats=calcStats(rows),daily=dailyAverage(rows),by=ROUTES.map(route=>({route,stats:calcStats(rows.filter(r=>r.routeId===route.id))}));document.getElementById("overallAnalytics").innerHTML=`<div class="panel"><h2>Общая статистика</h2>${periodControls("overallPeriod",days)}${statsCards(stats)}</div><div class="panel"><canvas id="overallChart"></canvas></div><div class="panel"><h3>Сводка по маршрутам</h3><table class="data-table"><thead><tr><th>Маршрут</th><th>Курьеров</th><th>Среднее</th><th>Общее</th><th>≤40</th><th>41–60</th><th>>60</th><th>KPI</th></tr></thead><tbody>${by.map(x=>`<tr><td><a href="#route/${encodeURIComponent(x.route.id)}">${x.route.title}</a></td><td>${x.stats.count}</td><td>${fmtMin(x.stats.avg)}</td><td>${fmtMin(x.stats.total)}</td><td>${x.stats.green}</td><td>${x.stats.yellow}</td><td>${x.stats.red}</td><td>${x.stats.sla}%</td></tr>`).join("")}</tbody></table></div>`;document.getElementById("overallPeriod").onchange=e=>renderOverall(Number(e.target.value));drawLineChart(document.getElementById("overallChart"),daily,"Общее среднее время по дням")}
+function historyTable(rows){return `<table class="data-table"><thead><tr><th>Дата</th><th>Маршрут</th><th>Курьер №</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th>KPI</th></tr></thead><tbody>${rows.slice().reverse().map(r=>`<tr><td>${niceDate(r.date)}</td><td>${r.routeTitle}</td><td>${r.index}</td><td>${r.in}</td><td>${r.out}</td><td>${fmtMin(r.min)}</td><td><span class="badge ${kpiClass(r.min)}">${kpiText(r.min)}</span></td></tr>`).join("")||`<tr><td colspan="7">Нет данных</td></tr>`}</tbody></table>`}
+function renderHistory(){const t=todayKey();document.getElementById("historyBlock").innerHTML=`<div class="panel"><h2>История за день</h2><div class="filters"><label class="filter">Дата<input type="date" id="historyDate" min="${isoDaysAgo(61)}" max="${t}" value="${t}"></label><label class="filter">Маршрут<select id="historyRoute"><option value="">Все</option>${ROUTES.map(r=>`<option value="${r.id}">${r.title}</option>`).join("")}</select></label></div><div id="historyTable"></div></div>`;const refresh=()=>{let d=document.getElementById("historyDate").value,r=document.getElementById("historyRoute").value,rows=flatRecords(null,62).filter(x=>x.date===d);if(r)rows=rows.filter(x=>x.routeId===r);document.getElementById("historyTable").innerHTML=historyTable(rows)};document.getElementById("historyDate").onchange=refresh;document.getElementById("historyRoute").onchange=refresh;refresh()}
+function csvEscape(v){const s=String(v??"");return `"${s.replace(/"/g,'""')}"`}function exportCSV(){const rows=flatRecords(null,62),head=["Дата","Маршрут","Курьер №","Прибытие","Убытие","Время отгрузки, мин","KPI"],lines=[head.map(csvEscape).join(";")];rows.forEach(r=>lines.push([niceDate(r.date),r.routeTitle,r.index,r.in,r.out,r.min,kpiText(r.min)].map(csvEscape).join(";")));const blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sklad-routes-${todayKey()}.csv`;a.click();URL.revokeObjectURL(a.href)}
+async function showPage(){const hash=location.hash.replace(/^#/,"");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));if(hash.startsWith("route/")){document.getElementById("routePage").classList.add("active");renderRouteAnalytics(decodeURIComponent(hash.split("/")[1]))}else if(hash==="overall"){document.getElementById("overallPage").classList.add("active");renderOverall()}else if(hash==="history"){document.getElementById("historyPage").classList.add("active");renderHistory()}else{document.getElementById("inputPage").classList.add("active");renderInput()}}
+document.getElementById("clearTodayBtn").onclick=async()=>{if(!confirm("Очистить все данные за сегодняшний день?"))return;const d=todayKey();for(const r of ROUTES){DATA[d][r.id]=[];await syncRoute(d,r.id)}renderInput()}
+document.getElementById("exportCsvBtn").onclick=exportCSV;window.addEventListener("hashchange",showPage);window.addEventListener("resize",()=>{const h=location.hash.replace(/^#/,"");if(h.startsWith("route/"))renderRouteAnalytics(decodeURIComponent(h.split("/")[1]));if(h==="overall")renderOverall()});
+(async()=>{try{await loadRemote();showPage()}catch(e){console.error(e);setStatus("Ошибка подключения: проверь key/RLS/DELETE policy")}})();
 </script>
-</body>
-</html>
+</body></html>
