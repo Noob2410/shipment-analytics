@@ -9,7 +9,7 @@
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
 header{position:sticky;top:0;z-index:20;background:#172033;color:white;padding:14px 18px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
 .topbar{max-width:1800px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-h1{font-size:20px;margin:0}.date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800}.status{font-size:13px;color:#d0d5dd}.toast{position:fixed;left:50%;top:84px;transform:translateX(-50%);background:#172033;color:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:9999;font-weight:800;max-width:92%;text-align:center;display:none}.toast.show{display:block}.chart-wrap{position:relative}.chart-tooltip{position:absolute;display:none;background:#172033;color:white;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.22);pointer-events:none;z-index:5;min-width:170px}.chart-tooltip .muted{color:#d0d5dd;font-weight:600}.chart-tooltip.show{display:block}
+h1{font-size:20px;margin:0}.date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800}.status{font-size:13px;color:#d0d5dd}.toast{position:fixed;left:50%;top:84px;transform:translateX(-50%);background:#172033;color:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:9999;font-weight:800;max-width:92%;text-align:center;display:none}.toast.show{display:block}.chart-wrap{position:relative;overflow-x:auto}.chart-tooltip{position:absolute;display:none;background:#172033;color:white;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.22);pointer-events:none;z-index:5;min-width:170px}.chart-tooltip .muted{color:#d0d5dd;font-weight:600}.chart-tooltip.show{display:block}
 main{max-width:1800px;margin:18px auto 40px;padding:0 14px}.page{display:none}.page.active{display:block}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 button,.btn{border:0;border-radius:12px;padding:10px 14px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;font-size:15px}
 button.light,.btn.light{background:#fff;color:var(--text);border:1px solid var(--line)}button.danger{background:#b42318}
@@ -37,7 +37,7 @@ canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;b
 <section id="inputPage" class="page active"><div class="actions"><a class="btn" href="#overall">Общая статистика</a><a class="btn light" href="#history">История</a><button class="danger" id="clearTodayBtn">Очистить сегодняшний день</button></div><div id="routesGrid" class="routes-grid"></div></section>
 <section id="routePage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn" href="#overall">Общая статистика</a><a class="btn light" href="#history">История</a></div><div id="routeAnalytics"></div></section>
 <section id="overallPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn light" href="#history">История</a><button class="light" id="exportCsvBtn">Скачать CSV</button></div><div id="overallAnalytics"></div></section>
-<section id="historyPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><button class="danger" id="fullResetBtn">Общий сброс</button></div><div id="historyBlock"></div></section>
+<section id="historyPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><button class="danger" id="fullResetBtn" title="Удалить всю историю после ввода логина и пароля">Общий сброс</button></div><div id="historyBlock"></div></section>
 </main>
 <script>
 const SUPABASE_URL="https://zbylwxmzkqyovpsymsje.supabase.co";
@@ -206,7 +206,9 @@ document.getElementById("clearTodayBtn").onclick=async()=>{if(!confirm("Очис
 
 async function fullResetHistory(){
   const login=prompt("Введите логин");
+  if(login===null) return;
   const password=prompt("Введите пароль");
+  if(password===null) return;
   if(login!=="156783" || password!=="156783"){
     showInfo("Вы не имеете прав сбрасывать историю");
     return;
