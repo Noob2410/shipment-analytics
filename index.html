@@ -9,7 +9,7 @@
 *{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
 header{position:sticky;top:0;z-index:20;background:#172033;color:white;padding:14px 18px;box-shadow:0 4px 18px rgba(0,0,0,.14)}
 .topbar{max-width:1800px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-h1{font-size:20px;margin:0}.date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800}.status{font-size:13px;color:#d0d5dd}.toast{position:fixed;left:50%;top:84px;transform:translateX(-50%);background:#172033;color:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:9999;font-weight:800;max-width:92%;text-align:center;display:none}.toast.show{display:block}
+h1{font-size:20px;margin:0}.date-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:8px 12px;border-radius:999px;font-weight:800}.status{font-size:13px;color:#d0d5dd}.toast{position:fixed;left:50%;top:84px;transform:translateX(-50%);background:#172033;color:#fff;padding:14px 18px;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:9999;font-weight:800;max-width:92%;text-align:center;display:none}.toast.show{display:block}.chart-wrap{position:relative}.chart-tooltip{position:absolute;display:none;background:#172033;color:white;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,.22);pointer-events:none;z-index:5;min-width:170px}.chart-tooltip .muted{color:#d0d5dd;font-weight:600}.chart-tooltip.show{display:block}
 main{max-width:1800px;margin:18px auto 40px;padding:0 14px}.page{display:none}.page.active{display:block}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 button,.btn{border:0;border-radius:12px;padding:10px 14px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;font-size:15px}
 button.light,.btn.light{background:#fff;color:var(--text);border:1px solid var(--line)}button.danger{background:#b42318}
@@ -27,7 +27,7 @@ th{background:#f8fafc;color:#344054;font-size:11px;text-transform:uppercase;lett
 .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:12px;margin:14px 0}.stat,.panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.stat{padding:16px}.panel{padding:16px;margin:12px 0}.stat .label{color:var(--muted);font-size:13px;margin-bottom:8px}.stat .value{font-size:28px;font-weight:900}
 canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;background:#fff}.kpi-row,.filters{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 0;align-items:end}.badge{border-radius:999px;padding:7px 10px;font-size:13px;font-weight:800;border:1px solid var(--line)}.badge.good{background:var(--green)}.badge.warn{background:var(--yellow)}.badge.bad{background:var(--red)}
 .data-table th,.data-table td{text-align:left}.data-table td:last-child,.data-table th:last-child{text-align:center}input[type=date],select{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;color:var(--text);font-weight:700}.filter{display:flex;flex-direction:column;gap:4px;color:var(--muted);font-size:13px;font-weight:800}
-@media(max-width:1800px){.routes-grid{grid-template-columns:repeat(3,minmax(345px,1fr))}}@media(max-width:1050px){.routes-grid,.stats-grid{grid-template-columns:1fr}header{position:static}canvas{height:260px}}
+@media(max-width:1800px){.routes-grid{grid-template-columns:repeat(3,minmax(345px,1fr))}}@media(max-width:1180px){.routes-grid{grid-template-columns:repeat(2,minmax(345px,1fr))}.topbar{align-items:flex-start}canvas{height:300px}}@media(max-width:760px){main{padding:0 8px;margin-top:10px}header{position:static;padding:12px 10px}h1{font-size:17px}.status{width:100%;font-size:12px}.date-pill{font-size:13px}.actions{gap:8px}.btn,button{font-size:14px;padding:9px 11px}.routes-grid,.stats-grid{grid-template-columns:1fr}.route-card{border-radius:14px}.route-head{padding:10px}.route-head a{font-size:15px}.route-kpi{font-size:11px}th,td{font-size:12px;padding:5px 2px}.col-num{width:28px}.col-time{width:100px}.col-duration{width:60px}.col-delete{width:30px}.time-part{width:39px;font-size:15px;padding:7px 2px}.route-foot{padding:9px 10px}.stat .value{font-size:23px}canvas{height:260px;min-width:620px}.panel{padding:12px}.data-table{min-width:760px}.filters{align-items:stretch}.filter{width:100%}input[type=date],select{width:100%}}
 </style>
 </head>
 <body>
@@ -71,7 +71,7 @@ function bindDeleteButtons(){const d=todayKey();document.querySelectorAll("[data
 function bindClearRouteButtons(){const d=todayKey();document.querySelectorAll("[data-clear-route]").forEach(btn=>btn.onclick=e=>{const route=e.currentTarget.dataset.clearRoute;if(!confirm("Очистить маршрут за сегодня?"))return;DATA[d][route]=[emptyRow(),emptyRow(),emptyRow(),emptyRow(),emptyRow()];renderInput();scheduleSync(route)})}
 function flatRecords(route=null,from=isoDaysAgo(61),to=todayKey()){return ALL_ROWS.filter(r=>r.date>=from&&r.date<=to).filter(r=>!route||r.route===route).map(r=>({date:r.date,routeId:r.route,routeTitle:ROUTES.find(x=>x.id===r.route)?.title||r.route,index:r.courier_index,in:r.in_time,out:r.out_time,min:r.duration_minutes}))}
 function calcStats(rows){const count=rows.length,total=rows.reduce((s,r)=>s+r.min,0),avg=count?total/count:null;const green=rows.filter(r=>r.min<=40).length,yellow=rows.filter(r=>r.min>40&&r.min<=60).length,red=rows.filter(r=>r.min>60).length,min=count?Math.min(...rows.map(r=>r.min)):null,max=count?Math.max(...rows.map(r=>r.min)):null,sla=count?Math.round(((green+yellow)/count)*100):0;return{count,total,avg,green,yellow,red,min,max,sla}}
-function dailyAverage(rows){const m={};rows.forEach(r=>{m[r.date]||=[];m[r.date].push(r.min)});return Object.keys(m).sort().map(date=>({date,avg:m[date].reduce((s,x)=>s+x,0)/m[date].length}))}
+function dailyAverage(rows){const m={};rows.forEach(r=>{m[r.date]||=[];m[r.date].push(r.min)});return Object.keys(m).sort().map(date=>({date,avg:m[date].reduce((s,x)=>s+x,0)/m[date].length,count:m[date].length}))}
 function statsCards(s){return `<div class="stats-grid"><div class="stat"><div class="label">Курьеров</div><div class="value">${s.count}</div></div><div class="stat"><div class="label">Среднее время</div><div class="value">${fmtMin(s.avg)}</div></div><div class="stat"><div class="label">Общее время</div><div class="value">${fmtMin(s.total)}</div></div><div class="stat"><div class="label">KPI ≤60 мин</div><div class="value">${s.sla}%</div></div></div><div class="kpi-row"><span class="badge good">≤40 мин: ${s.green}</span><span class="badge warn">41–60 мин: ${s.yellow}</span><span class="badge bad">>60 мин: ${s.red}</span><span class="badge">Мин: ${fmtMin(s.min)}</span><span class="badge">Макс: ${fmtMin(s.max)}</span></div>`}
 function periodControls(prefix,from,to){
   return `<div class="filters">
@@ -93,9 +93,111 @@ function bindPeriod(prefix,onApply){
     onApply(from,to);
   };
 }
-function drawLineChart(canvas,points,title){const ctx=canvas.getContext("2d"),ratio=devicePixelRatio||1;canvas.width=canvas.clientWidth*ratio;canvas.height=canvas.clientHeight*ratio;ctx.scale(ratio,ratio);const W=canvas.clientWidth,H=canvas.clientHeight;ctx.clearRect(0,0,W,H);ctx.font="14px system-ui";ctx.fillStyle="#172033";ctx.fillText(title,18,26);if(!points.length){ctx.fillStyle="#98a2b3";ctx.font="22px system-ui";ctx.fillText("Нет данных для графика",54,120);return}const pL=54,pR=18,pT=44,pB=42,pW=W-pL-pR,pH=H-pT-pB,maxY=Math.max(70,Math.ceil(Math.max(...points.map(p=>p.avg))/10)*10);ctx.strokeStyle="#d9dee7";for(let i=0;i<=4;i++){let y=pT+pH/4*i;ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle="#667085";ctx.font="12px system-ui";ctx.fillText(String(Math.round(maxY-(maxY/4)*i)),14,y+4)}const xFor=i=>points.length===1?pL+pW/2:pL+(pW/(points.length-1))*i,yFor=v=>pT+pH-(v/maxY)*pH;ctx.strokeStyle="#1f4e78";ctx.lineWidth=3;ctx.beginPath();points.forEach((p,i)=>{const x=xFor(i),y=yFor(p.avg);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.fillStyle="#1f4e78";points.forEach((p,i)=>{ctx.beginPath();ctx.arc(xFor(i),yFor(p.avg),4,0,Math.PI*2);ctx.fill()})}
-function renderRouteAnalytics(route,from=defaultFrom(),to=defaultTo()){const rt=ROUTES.find(r=>r.id===route),rows=flatRecords(route,from,to),stats=calcStats(rows),daily=dailyAverage(rows);document.getElementById("routeAnalytics").innerHTML=`<div class="panel"><h2>${rt.title}: аналитика</h2>${periodControls("routePeriod",from,to)}${statsCards(stats)}</div><div class="panel"><canvas id="routeChart"></canvas></div><div class="panel"><h3>История</h3>${historyTable(rows)}</div>`;bindPeriod("routePeriod",(f,t)=>renderRouteAnalytics(route,f,t));drawLineChart(document.getElementById("routeChart"),daily,`Среднее время по дням — ${rt.title}`)}
-function renderOverall(from=defaultFrom(),to=defaultTo()){const rows=flatRecords(null,from,to),stats=calcStats(rows),daily=dailyAverage(rows),by=ROUTES.map(route=>({route,stats:calcStats(rows.filter(r=>r.routeId===route.id))}));document.getElementById("overallAnalytics").innerHTML=`<div class="panel"><h2>Общая статистика</h2>${periodControls("overallPeriod",from,to)}${statsCards(stats)}</div><div class="panel"><canvas id="overallChart"></canvas></div><div class="panel"><h3>Сводка по маршрутам</h3><table class="data-table"><thead><tr><th>Маршрут</th><th>Курьеров</th><th>Среднее</th><th>Общее</th><th>≤40</th><th>41–60</th><th>>60</th><th>KPI</th></tr></thead><tbody>${by.map(x=>`<tr><td><a href="#route/${encodeURIComponent(x.route.id)}">${x.route.title}</a></td><td>${x.stats.count}</td><td>${fmtMin(x.stats.avg)}</td><td>${fmtMin(x.stats.total)}</td><td>${x.stats.green}</td><td>${x.stats.yellow}</td><td>${x.stats.red}</td><td>${x.stats.sla}%</td></tr>`).join("")}</tbody></table></div>`;bindPeriod("overallPeriod",(f,t)=>renderOverall(f,t));drawLineChart(document.getElementById("overallChart"),daily,"Общее среднее время по дням")}
+function drawLineChart(canvas,points,title){
+  const ctx=canvas.getContext("2d"),ratio=devicePixelRatio||1;
+  canvas.width=canvas.clientWidth*ratio;
+  canvas.height=canvas.clientHeight*ratio;
+  ctx.scale(ratio,ratio);
+  const W=canvas.clientWidth,H=canvas.clientHeight;
+  ctx.clearRect(0,0,W,H);
+  ctx.font="14px system-ui";
+  ctx.fillStyle="#172033";
+  ctx.fillText(title,18,26);
+
+  const tooltip=canvas.parentElement.querySelector(".chart-tooltip");
+  canvas.__chartPoints=[];
+
+  if(!points.length){
+    ctx.fillStyle="#98a2b3";
+    ctx.font="22px system-ui";
+    ctx.fillText("Нет данных для графика",54,120);
+    if(tooltip) tooltip.classList.remove("show");
+    return;
+  }
+
+  const pL=54,pR=18,pT=44,pB=54,pW=W-pL-pR,pH=H-pT-pB;
+  const maxY=Math.max(70,Math.ceil(Math.max(...points.map(p=>p.avg))/10)*10);
+
+  ctx.strokeStyle="#d9dee7";
+  ctx.lineWidth=1;
+  ctx.font="12px system-ui";
+  for(let i=0;i<=4;i++){
+    let y=pT+pH/4*i;
+    ctx.beginPath();
+    ctx.moveTo(pL,y);
+    ctx.lineTo(W-pR,y);
+    ctx.stroke();
+    ctx.fillStyle="#667085";
+    ctx.fillText(String(Math.round(maxY-(maxY/4)*i)),14,y+4);
+  }
+
+  const xFor=i=>points.length===1?pL+pW/2:pL+(pW/(points.length-1))*i;
+  const yFor=v=>pT+pH-(v/maxY)*pH;
+
+  ctx.strokeStyle="#1f4e78";
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  points.forEach((p,i)=>{
+    const x=xFor(i),y=yFor(p.avg);
+    if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);
+  });
+  ctx.stroke();
+
+  ctx.fillStyle="#1f4e78";
+  points.forEach((p,i)=>{
+    const x=xFor(i),y=yFor(p.avg);
+    canvas.__chartPoints.push({x,y,date:p.date,avg:p.avg,count:p.count||0});
+    ctx.beginPath();
+    ctx.arc(x,y,4,0,Math.PI*2);
+    ctx.fill();
+  });
+
+  ctx.fillStyle="#667085";
+  ctx.font="11px system-ui";
+  const labelStep=Math.max(1,Math.ceil(points.length/8));
+  points.forEach((p,i)=>{
+    if(i%labelStep===0 || i===points.length-1){
+      const x=xFor(i);
+      ctx.save();
+      ctx.translate(x,H-18);
+      ctx.rotate(-0.35);
+      ctx.fillText(niceDate(p.date).slice(0,5),-13,0);
+      ctx.restore();
+    }
+  });
+
+  const showTip=(event)=>{
+    if(!tooltip || !canvas.__chartPoints.length) return;
+    const rect=canvas.getBoundingClientRect();
+    const clientX=event.touches?event.touches[0].clientX:event.clientX;
+    const clientY=event.touches?event.touches[0].clientY:event.clientY;
+    const mx=clientX-rect.left,my=clientY-rect.top;
+    let nearest=null,best=99999;
+    canvas.__chartPoints.forEach(p=>{
+      const d=Math.hypot(mx-p.x,my-p.y);
+      if(d<best){best=d;nearest=p;}
+    });
+    if(!nearest || best>22){
+      tooltip.classList.remove("show");
+      return;
+    }
+    tooltip.innerHTML=`<div>${niceDate(nearest.date)}</div><div class="muted">Среднее: ${fmtMin(nearest.avg)}</div><div class="muted">Курьеров: ${nearest.count}</div><div class="muted">KPI: ${kpiText(nearest.avg)}</div>`;
+    const left=Math.min(Math.max(nearest.x+12,8),rect.width-190);
+    const top=Math.max(nearest.y-72,8);
+    tooltip.style.left=left+"px";
+    tooltip.style.top=top+"px";
+    tooltip.classList.add("show");
+  };
+
+  canvas.onmousemove=showTip;
+  canvas.ontouchstart=showTip;
+  canvas.ontouchmove=showTip;
+  canvas.onmouseleave=()=>{if(tooltip)tooltip.classList.remove("show");};
+  canvas.ontouchend=()=>setTimeout(()=>tooltip&&tooltip.classList.remove("show"),1300);
+}
+
+function renderRouteAnalytics(route,from=defaultFrom(),to=defaultTo()){const rt=ROUTES.find(r=>r.id===route),rows=flatRecords(route,from,to),stats=calcStats(rows),daily=dailyAverage(rows);document.getElementById("routeAnalytics").innerHTML=`<div class="panel"><h2>${rt.title}: аналитика</h2>${periodControls("routePeriod",from,to)}${statsCards(stats)}</div><div class="panel chart-wrap"><canvas id="routeChart"></canvas><div id="routeChartTooltip" class="chart-tooltip"></div></div><div class="panel"><h3>История</h3>${historyTable(rows)}</div>`;bindPeriod("routePeriod",(f,t)=>renderRouteAnalytics(route,f,t));drawLineChart(document.getElementById("routeChart"),daily,`Среднее время по дням — ${rt.title}`)}
+function renderOverall(from=defaultFrom(),to=defaultTo()){const rows=flatRecords(null,from,to),stats=calcStats(rows),daily=dailyAverage(rows),by=ROUTES.map(route=>({route,stats:calcStats(rows.filter(r=>r.routeId===route.id))}));document.getElementById("overallAnalytics").innerHTML=`<div class="panel"><h2>Общая статистика</h2>${periodControls("overallPeriod",from,to)}${statsCards(stats)}</div><div class="panel chart-wrap"><canvas id="overallChart"></canvas><div id="overallChartTooltip" class="chart-tooltip"></div></div><div class="panel"><h3>Сводка по маршрутам</h3><table class="data-table"><thead><tr><th>Маршрут</th><th>Курьеров</th><th>Среднее</th><th>Общее</th><th>≤40</th><th>41–60</th><th>>60</th><th>KPI</th></tr></thead><tbody>${by.map(x=>`<tr><td><a href="#route/${encodeURIComponent(x.route.id)}">${x.route.title}</a></td><td>${x.stats.count}</td><td>${fmtMin(x.stats.avg)}</td><td>${fmtMin(x.stats.total)}</td><td>${x.stats.green}</td><td>${x.stats.yellow}</td><td>${x.stats.red}</td><td>${x.stats.sla}%</td></tr>`).join("")}</tbody></table></div>`;bindPeriod("overallPeriod",(f,t)=>renderOverall(f,t));drawLineChart(document.getElementById("overallChart"),daily,"Общее среднее время по дням")}
 function historyTable(rows){return `<table class="data-table"><thead><tr><th>Дата</th><th>Маршрут</th><th>Курьер №</th><th>Прибытие</th><th>Убытие</th><th>Время</th><th>KPI</th></tr></thead><tbody>${rows.slice().reverse().map(r=>`<tr><td>${niceDate(r.date)}</td><td>${r.routeTitle}</td><td>${r.index}</td><td>${r.in}</td><td>${r.out}</td><td>${fmtMin(r.min)}</td><td><span class="badge ${kpiClass(r.min)}">${kpiText(r.min)}</span></td></tr>`).join("")||`<tr><td colspan="7">Нет данных</td></tr>`}</tbody></table>`}
 function renderHistory(){const t=todayKey();document.getElementById("historyBlock").innerHTML=`<div class="panel"><h2>История за день</h2><div class="filters"><label class="filter">Дата<input type="date" id="historyDate" min="${isoDaysAgo(61)}" max="${t}" value="${t}"></label><label class="filter">Маршрут<select id="historyRoute"><option value="">Все</option>${ROUTES.map(r=>`<option value="${r.id}">${r.title}</option>`).join("")}</select></label></div><div id="historyTable"></div></div>`;const refresh=()=>{let d=document.getElementById("historyDate").value,r=document.getElementById("historyRoute").value,rows=flatRecords(null,isoDaysAgo(61),todayKey()).filter(x=>x.date===d);if(r)rows=rows.filter(x=>x.routeId===r);document.getElementById("historyTable").innerHTML=historyTable(rows)};document.getElementById("historyDate").onchange=refresh;document.getElementById("historyRoute").onchange=refresh;refresh()}
 function csvEscape(v){const s=String(v??"");return `"${s.replace(/"/g,'""')}"`}function exportCSV(){const rows=flatRecords(null,isoDaysAgo(61),todayKey()),head=["Дата","Маршрут","Курьер №","Прибытие","Убытие","Время отгрузки, мин","KPI"],lines=[head.map(csvEscape).join(";")];rows.forEach(r=>lines.push([niceDate(r.date),r.routeTitle,r.index,r.in,r.out,r.min,kpiText(r.min)].map(csvEscape).join(";")));const blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sklad-routes-${todayKey()}.csv`;a.click();URL.revokeObjectURL(a.href)}
