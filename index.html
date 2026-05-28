@@ -37,7 +37,7 @@ canvas{width:100%;height:320px;border:1px solid var(--line);border-radius:14px;b
 <section id="inputPage" class="page active"><div class="actions"><a class="btn" href="#overall">Общая статистика</a><a class="btn light" href="#history">История</a><button class="danger" id="clearTodayBtn">Очистить сегодняшний день</button></div><div id="routesGrid" class="routes-grid"></div></section>
 <section id="routePage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn" href="#overall">Общая статистика</a><a class="btn light" href="#history">История</a></div><div id="routeAnalytics"></div></section>
 <section id="overallPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><a class="btn light" href="#history">История</a><button class="light" id="exportCsvBtn">Скачать CSV</button></div><div id="overallAnalytics"></div></section>
-<section id="historyPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a></div><div id="historyBlock"></div></section>
+<section id="historyPage" class="page"><div class="actions"><a class="btn light" href="#">← Назад к вводу</a><button class="danger" id="fullResetBtn">Общий сброс</button></div><div id="historyBlock"></div></section>
 </main>
 <script>
 const SUPABASE_URL="https://zbylwxmzkqyovpsymsje.supabase.co";
@@ -203,6 +203,32 @@ function renderHistory(){const t=todayKey();document.getElementById("historyBloc
 function csvEscape(v){const s=String(v??"");return `"${s.replace(/"/g,'""')}"`}function exportCSV(){const rows=flatRecords(null,isoDaysAgo(61),todayKey()),head=["Дата","Маршрут","Курьер №","Прибытие","Убытие","Время отгрузки, мин","KPI"],lines=[head.map(csvEscape).join(";")];rows.forEach(r=>lines.push([niceDate(r.date),r.routeTitle,r.index,r.in,r.out,r.min,kpiText(r.min)].map(csvEscape).join(";")));const blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sklad-routes-${todayKey()}.csv`;a.click();URL.revokeObjectURL(a.href)}
 async function showPage(){const hash=location.hash.replace(/^#/,"");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));if(hash.startsWith("route/")){document.getElementById("routePage").classList.add("active");renderRouteAnalytics(decodeURIComponent(hash.split("/")[1]))}else if(hash==="overall"){document.getElementById("overallPage").classList.add("active");renderOverall()}else if(hash==="history"){document.getElementById("historyPage").classList.add("active");renderHistory()}else{document.getElementById("inputPage").classList.add("active");renderInput()}}
 document.getElementById("clearTodayBtn").onclick=async()=>{if(!confirm("Очистить все данные за сегодняшний день?"))return;const d=todayKey();ensureDay(d);for(const r of ROUTES){DATA[d][r.id]=[];await syncRoute(d,r.id)}renderInput()}
+
+async function fullResetHistory(){
+  const login=prompt("Введите логин");
+  const password=prompt("Введите пароль");
+  if(login!=="156783" || password!=="156783"){
+    showInfo("Вы не имеете прав сбрасывать историю");
+    return;
+  }
+  if(!confirm("Вы точно хотите удалить всю историю за все время? Это действие нельзя отменить.")) return;
+  try{
+    setStatus("Удаление всей истории...");
+    await api(`${encodeURIComponent(TABLE_NAME)}?date=not.is.null`,{method:"DELETE"});
+    ALL_ROWS=[];
+    DATA={};
+    await loadRemote();
+    setStatus("История полностью сброшена");
+    showInfo("История полностью сброшена");
+    showPage();
+  }catch(e){
+    console.error(e);
+    setStatus("Ошибка общего сброса");
+    showInfo("Ошибка сброса: проверь DELETE policy в Supabase");
+  }
+}
+document.getElementById("fullResetBtn").onclick=fullResetHistory;
+
 document.getElementById("exportCsvBtn").onclick=exportCSV;window.addEventListener("hashchange",showPage);window.addEventListener("resize",()=>{const h=location.hash.replace(/^#/,"");if(h.startsWith("route/"))renderRouteAnalytics(decodeURIComponent(h.split("/")[1]));if(h==="overall")renderOverall()});
 (async()=>{try{await loadRemote();showPage()}catch(e){console.error(e);setStatus("Ошибка подключения: проверь key/RLS/DELETE policy")}})();
 </script>
